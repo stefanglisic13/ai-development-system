@@ -2,6 +2,8 @@
 
 This standard extends the Core Development Standard and TypeScript Standard. It defines the default React architecture and implementation style for projects that follow this development system.
 
+Scope: web React applications. React Native reuses component, hook, state, forms, query, and API principles; its own standard replaces web markup, styling, navigation, and runtime behavior.
+
 ## Primary Principle
 
 React code should make it easy to understand what a screen renders, where its state lives, how it fetches data, and which parts are reusable.
@@ -58,8 +60,7 @@ Keep a component in its parent file when it is small, only serves that parent, a
 Extract a component into its own file only when at least one of these is true:
 
 - it owns its own meaningful state, effects, event handling, or processing;
-- it is clearly used in more than one place;
-- extracting it makes the parent screen's main flow substantially easier to understand.
+- it is clearly used in more than one place.
 
 Do not split JSX into many small files just to reduce the line count of a parent component.
 
@@ -72,6 +73,8 @@ Use shared page templates, section templates, layouts, and UI components when th
 Use `styled-components` for React component styling.
 
 Each rendered component root must use a styled wrapper named `Container`. The rendered `Container` must have a meaningful, unique `id` in kebab-case.
+
+For repeated instances, use a stable instance suffix (for example `user-card-${user.id}`), or a caller-provided unique id. Do not repeat a fixed DOM id for every list item or generate a random id during render. Define styled wrappers at module scope. Route adapters, providers, and components returning `null` do not need an extra DOM wrapper. Choose a semantic element that preserves valid HTML.
 
 ```tsx
 const Container = styled.section`
@@ -106,6 +109,8 @@ export const UsersPage = () => {
 ```
 
 Style internal elements through classes nested inside `Container`.
+
+Keep selectors scoped to owned markup. Use direct-child selectors where a nested component may also use `.header`, `.content`, or another short class; do not accidentally style a child component's internals.
 
 Class names should usually be one meaningful word describing the element's role or position, such as `header`, `content`, `actions`, `title`, `list`, `item`, `form`, `footer`, or `sidebar`.
 
@@ -156,6 +161,8 @@ Split global client state by lifecycle:
 - **temporary state**: global toasts, dialogs, confirmation dialogs, loaders, and other state that must disappear on refresh;
 - **persistent state**: only durable client data with a real reload requirement, such as a user session.
 
+Persistence does not select credential storage. Follow the approved authentication design; do not automatically serialize tokens into browser storage. Wait for required state hydration before deciding authenticated routes, and clear user-scoped queries and UI state when the session ends or changes.
+
 Do not persist temporary UI state, server-state cache, form data, or incidental page state by default.
 
 Read Zustand through narrow selector hooks so a component subscribes only to the state and actions it uses. Do not make ordinary components consume a combined, whole-store object.
@@ -188,8 +195,8 @@ export const getUsers = async (): Promise<UserResponseDto[]> => {
   return response.data;
 };
 
-export const useUsers = () =>
-  useQuery({
+export const usersQuery = () =>
+  queryOptions({
     queryKey: ['users'],
     queryFn: getUsers,
   });
@@ -198,6 +205,8 @@ export const useUsers = () =>
 Use `queryOptions` and `mutationOptions` when they make a feature's query contract reusable without introducing a new abstraction layer.
 
 Use stable, understandable query keys. Invalidate or update only the queries affected by a completed mutation.
+
+Include every input that changes the returned data in the query key (for example resource id, filters, page, or tenant). Keep feedback in one owner to prevent duplicate toasts; caller-specific navigation stays at the screen or hook boundary.
 
 Do not duplicate server state in local state or a global store unless there is a specific UI reason that cannot be handled by TanStack Query.
 
@@ -210,6 +219,8 @@ Do not introduce another data-fetching library or a generic API abstraction with
 Keep the application's HTTP client in one shared API boundary. Feature `api/` files call that client; they do not configure independent clients or duplicate request interceptors.
 
 When the selected authentication architecture uses access and refresh tokens, keep token attachment, single-flight refresh, session clearing, and redirect to sign-in in that shared API boundary. Do not implement refresh behavior inside individual feature requests.
+
+A shared refresh promise represents the token refresh only. Each waiting request retries its own original request once; clear the promise after success or failure and do not send the refresh request back through the same refresh loop. Session expiry must use the same cleanup path as logout.
 
 Do not add refresh-token behavior when the application does not use that authentication architecture.
 

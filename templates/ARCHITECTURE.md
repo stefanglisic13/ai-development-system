@@ -1,5 +1,13 @@
 # Architecture
 
+Status: Draft
+
+Revision: 1
+
+Approved revision: Not approved
+
+Approval reference:
+
 ## Overview
 
 <!-- Describe the system at a high level and the responsibility of each application or service. -->
@@ -35,6 +43,8 @@
 ## Testing Strategy
 
 <!-- Record the explicit testing policy for this project. Tests are not implied by default. -->
+
+Test creation requires an explicit request. Existing relevant checks may be run; record their commands and external requirements in `STACK.md`.
 
 ## Deployment and Environments
 

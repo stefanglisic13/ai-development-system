@@ -1,19 +1,26 @@
 # Project Structure
 
+Status: Draft
+
+Revision: 1
+
+Approved revision: Not approved
+
+Approval reference:
+
 ## Purpose
 
 This document is the source of truth for repository structure. New code must follow it. Do not invent new folders, layers, or naming patterns without an approved architecture change.
 
 ## Repository Tree
 
-<!-- Paste the approved high-level tree. Include every application and major shared location. -->
+<!-- Replace with the approved high-level tree. Do not create apps/, packages/, or example files just because they appear in a template. src/ is relative to each app root. Remove unused application sections. -->
 
 ```text
 project/
-├── apps/
-├── packages/
-├── docs/
-└── ...
+├── .ai/
+├── .cursor/
+└── <approved application locations>
 ```
 
 ## Backend Feature Structure
@@ -33,7 +40,7 @@ users/
 
 ## React Feature Structure
 
-<!-- Define the canonical web feature structure used by every equivalent feature. -->
+<!-- Define the canonical web feature structure under the web app's src/features/. Names below describe roles, not a command to generate unused hook/component files. -->
 
 ```text
 users/
@@ -46,7 +53,7 @@ users/
 
 ## React Native Feature Structure
 
-<!-- Define the canonical mobile feature structure used by every equivalent feature. Remove this section if no mobile app exists. -->
+<!-- Define the canonical mobile feature structure under the mobile app's src/features/. Remove this section if no mobile app exists. -->
 
 ```text
 users/

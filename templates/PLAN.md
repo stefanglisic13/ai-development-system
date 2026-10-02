@@ -2,7 +2,13 @@
 
 Feature: [FEATURE.md](./FEATURE.md)
 
-Status: Draft | Approved | In Progress | Complete | Blocked
+Approval: Draft
+
+Progress: Not started
+
+Revision: 1
+
+Feature revision: TBD
 
 ## Implementation Scope
 
@@ -18,17 +24,27 @@ Status: Draft | Approved | In Progress | Complete | Blocked
 
 ## Change Summary
 
-New dependencies: None
+<!-- Resolve each TBD to an explicit list or None before approval. Include package manifests, lockfiles, config and expected scaffold output. -->
 
-New abstractions: None
+New dependencies: TBD
 
-Database changes: None
+New abstractions: TBD
 
-New files: None
+Database changes: TBD
+
+New files: TBD
+
+## Review Baseline
+
+<!-- At each phase's first implementation record HEAD, phase, and pre-existing staged/unstaged/untracked changes; record starting files if no Git repo exists. Keep a separate entry per phase. Reuse its baseline when resuming and do not overwrite it during progress updates. -->
 
 ## Phases
 
 ### Phase 1: <name>
+
+Progress: Not started
+
+Completion criteria:
 
 Goal:
 
@@ -42,6 +58,12 @@ Steps:
 2. <concrete implementation step>
 
 ### Phase 2: <name>
+
+<!-- Remove this phase if unnecessary. -->
+
+Progress: Not started
+
+Completion criteria:
 
 Goal:
 
@@ -58,6 +80,8 @@ Steps:
 
 <!-- List only checks explicitly required by the task, project policy, or change risk. Do not add tests automatically. -->
 
+<!-- Record exact command/manual check, expected outcome, actual outcome, and unresolved limitations per phase. Plan/CURRENT progress updates are allowed bookkeeping, not approval to change scope. -->
+
 ## Deviation Rule
 
 If implementation requires a change outside this plan, stop and report:
@@ -69,6 +93,10 @@ If implementation requires a change outside this plan, stop and report:
 
 ## Approval
 
+Approved revision: Not approved
+
 Approved by:
 
 Approved on:
+
+Approval reference:

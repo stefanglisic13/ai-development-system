@@ -1,34 +1,12 @@
 ---
-description: React web conventions for feature structure, state, forms, TanStack Query, and styled-components.
-globs:
-  - "**/*.tsx"
+description: React web conventions; excludes native apps.
 alwaysApply: false
 ---
 
-# React Web Rules
+# React Web Context
 
-Use `src/features/` for feature code. Route definitions stay thin; feature screens, logic, API calls, components, hooks, and types live under the relevant feature.
+Apply only to web React apps. Do not apply web styling, DOM ids, or browser routing to React Native.
 
-- Keep a component in its parent file when it is small and parent-specific.
-- Extract a component only when it has meaningful independent behavior, real reuse, or makes an otherwise unclear parent understandable.
-- Extract a hook only for real reuse or when it creates a clearer boundary in an overloaded parent.
-- Use local state by default. Use global state only for genuinely application-wide state.
-- Use Zustand as the default global client store when the project's approved stack includes it. Keep temporary global UI state separate from durable persisted state such as a session.
-- Read Zustand through narrow selectors; do not consume a whole combined store from ordinary components.
-- Use TanStack Query for server state. Do not duplicate server state in local or global state without a specific UI reason.
-- Keep query keys, query or mutation options, invalidation, and feature-level success/error feedback in the feature `api/` location. Configure `QueryClient` once at the app root.
-- Use Formik and Yup for forms. Do not mirror form fields in local `useState`.
-- Use `useEffect` only for real side effects. Do not add `useMemo` or `useCallback` without a demonstrated need.
-- Mount error, query, theme, and global UI providers only at the application root. Do not duplicate them inside features.
-- Keep tokenized colors, spacing, typography, and layout values in the approved theme source.
-- Keep one shared HTTP client. When the approved auth architecture has refresh tokens, keep token refresh and session reset in that API boundary rather than feature requests.
+Before planning, implementing, or reviewing relevant work, read `.ai/standards/frameworks/react.md` in full and follow the approved project documents. The canonical standard contains the rules; this file only routes context.
 
-## Styling
-
-Use `styled-components` only.
-
-- Every rendered component root is a styled wrapper named `Container`.
-- Every rendered `Container` has a meaningful, unique kebab-case `id`.
-- Style internal elements through short, role-based classes nested inside `Container`, such as `header`, `content`, `actions`, `list`, or `item`.
-- Keep styles close to the component. Do not create a separate styles file merely to move a small `Container` declaration.
-- Do not introduce CSS Modules, Tailwind, inline style objects, or another styling system without approval.
+The always-applied project-context rule requires this read even before source files exist. Resolve application boundaries from `.ai/STACK.md` and `.ai/STRUCTURE.md`; file extension alone does not determine the framework.

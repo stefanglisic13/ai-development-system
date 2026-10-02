@@ -1,6 +1,10 @@
 # Feature: <feature name>
 
-Status: Draft | Approved | In Progress | Complete | Blocked
+Approval: Draft
+
+Progress: Not started
+
+Revision: 1
 
 ## Goal
 
@@ -52,6 +56,10 @@ Status: Draft | Approved | In Progress | Complete | Blocked
 
 ## Approval
 
+Approved revision: Not approved
+
 Approved by:
 
 Approved on:
+
+Approval reference: <!-- Actual approval message; revise and re-approve material scope changes. -->

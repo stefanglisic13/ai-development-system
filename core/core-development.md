@@ -12,6 +12,14 @@ Do not optimize for hypothetical future requirements.
 
 Do not introduce complexity unless the current requirement clearly justifies it.
 
+## Applying These Standards
+
+Use the developer's current explicit request, approved project decisions, applicable framework standard, and this core standard in that order. Runtime/tool permissions still apply. Examples and unfilled templates are not approved decisions.
+
+For an existing project, preserve compatible established patterns. If they conflict with an explicit requirement, report the conflict rather than silently migrating the project or ignoring the requirement. Routine implementation details within approved scope do not require another approval.
+
+In a monorepo, apply framework rules only to the application they describe. Resolve `src/` relative to that application's root. React web styling does not apply to React Native.
+
 ## 2. Scope Discipline
 
 Always implement only what was explicitly requested.
@@ -204,6 +212,8 @@ Avoid chains of defensive checks created only because a value could theoreticall
 
 Do not silently add fallback behavior for impossible states.
 
+Validation at untrusted input boundaries, authorization, and integrity checks required by the feature are real requirements. TypeScript types alone do not validate external input. Do not remove these checks in the name of simplicity.
+
 ## 9. Error Handling
 
 Handle errors close to the operation where they occur.
@@ -224,6 +234,8 @@ Do not create custom error classes unless they provide a concrete benefit.
 
 Use existing framework errors where sufficient.
 
+Catch an error when the boundary can add useful context, translate it, recover, or compensate. Preserve known error status and original cause; do not turn all failures into a generic success or `500`. Use one logging owner for each failure to avoid logging it at every layer.
+
 ## 10. Dependencies
 
 Never install or introduce a new dependency without explicit developer approval.
@@ -236,6 +248,8 @@ Before suggesting a dependency:
 4. Wait for approval before installing it.
 
 Do not introduce competing libraries for functionality already covered by the existing stack.
+
+Approval recorded in the current conversation or an approved plan counts as approval; do not ask again for the same dependency. Install only the approved scope using the existing package manager and lockfile.
 
 ## 11. TypeScript
 
@@ -320,11 +334,15 @@ Only create them when the task specifically includes testing.
 
 If a change appears risky enough that testing should be considered, mention it separately rather than automatically implementing tests.
 
+This restriction concerns creating or changing tests, not verification. Run relevant existing typecheck/build/lint or tests when appropriate and available. Inspect commands before running them; avoid unrelated autofixes, external-service calls, or data mutations. Report failed and unavailable checks honestly.
+
 ## 14. Naming
 
 Use kebab-case for file names where applicable.
 
 Files inside a feature should use the feature name as their base.
+
+Framework-required filenames such as Expo Router's `_layout.tsx` and `index.tsx` keep their required names.
 
 ```text
 auth/
@@ -389,7 +407,12 @@ async createBooking(input: CreateBookingDto) {
     totalPrice: input.rooms * hotel.pricePerRoom,
   });
 
-  return this.bookingRepository.save(booking);
+  const savedBooking = await this.bookingRepository.save(booking);
+
+  return {
+    id: savedBooking.id,
+    totalPrice: savedBooking.totalPrice,
+  } satisfies BookingResponseDto;
 }
 ```
 
@@ -465,3 +488,5 @@ Choose the simpler solution.
 When uncertain whether something should be added, do not add it.
 
 When a decision belongs to the developer, ask or propose rather than deciding independently.
+
+Before editing, inspect existing changes and preserve them. Review both scope and correctness before completion, including staged, unstaged, and relevant untracked files. Never remove another contributor's changes to make a diff match a plan.

@@ -31,9 +31,11 @@ ai-development-system/
 │   ├── FEATURE.md
 │   ├── PLAN.md
 │   └── CURRENT.md
-└── cursor/
-    ├── rules/
-    └── commands/
+├── cursor/
+│   ├── rules/
+│   └── commands/
+└── scripts/
+    └── init-project.sh
 ```
 
 ## Use in a New Project
@@ -46,6 +48,8 @@ Initialize a concrete project with the setup script, then commit the generated c
 
 Available stack options are `--typescript`, `--react`, `--react-native`, and `--nestjs`. The script never overwrites an existing file.
 
+For an Expo app use `--typescript --react-native`; for a full monorepo include all applicable frameworks. Framework paths are resolved within each app, so record the app roots during `/plan-project`. The script installs documentation only: it does not install dependencies or scaffold apps. Use an existing project directory; managed destination symlinks are rejected before writing.
+
 The generated project structure is:
 
 ```text
@@ -57,7 +61,9 @@ project/
 │   ├── STACK.md
 │   ├── CURRENT.md
 │   ├── decisions/
-│   └── features/
+│   ├── features/
+│   ├── templates/       # all templates, including project planning
+│   └── standards/       # full core and selected framework standards
 └── .cursor/
     ├── rules/
     └── commands/
@@ -77,6 +83,14 @@ Then add only the framework rules used by that project:
 
 See [cursor/README.md](./cursor/README.md) for the adapter structure.
 
+## How Context Is Loaded
+
+`core/` and `frameworks/` are the canonical standards. Initialization copies them into `.ai/standards/`; Cursor rules route the agent to these full documents. There is no separately maintained framework summary to drift out of sync. Native installations include React's shared principles while native styling and navigation override web rules.
+
+The always-applied context rule selects relevant standards using the app map and the task, including planning before code exists. Precedence is: explicit developer request, approved project decisions, applicable framework standard, core defaults. Existing compatible code patterns remain relevant; conflicts are surfaced rather than silently migrated.
+
+Rules and slash commands are prompt instructions, not a technical guarantee of compliance. Review the resulting code and the rules Cursor shows as applied. Source: [Cursor rules](https://cursor.com/docs/rules).
+
 ## Workflow
 
 ### 1. Plan the project
@@ -91,7 +105,7 @@ The command creates or updates the project source of truth:
 - canonical folder structure;
 - active work state.
 
-It must request approval for unresolved material decisions rather than choosing them independently.
+It writes reviewable drafts using `.ai/templates/`, asks about unresolved material decisions, then records explicit approval of the presented revision. Placeholder content is never treated as an approved architecture. Approved project documents and `STACK.md` list the app map, dependencies, and actual validation commands.
 
 ### 2. Plan a feature
 
@@ -113,13 +127,15 @@ Approve the plan before coding.
 
 Run `/implement-feature <feature-name> phase-<number>`.
 
-The agent must read project context, the approved feature, and the plan. It may not redesign the solution, add unplanned files or dependencies, refactor unrelated code, or add tests automatically.
+The agent must read project context, the approved feature, and the plan. It may install dependencies already explicitly approved there, using the planned manifest and lockfile changes. It may not redesign the solution, add unplanned files or dependencies, refactor unrelated code, or add tests automatically. Approval and implementation progress are separate: `In Progress` does not require reapproval of unchanged scope.
 
 ### 5. Review scope
 
 Run `/review-scope <feature-name>` before committing.
 
-The command compares the current git diff to the approved feature and plan, highlighting unexpected files, unplanned work, architecture violations, and possible overengineering.
+The command checks scope and correctness against the recorded phase baseline, including staged, unstaged, untracked, and already committed phase changes. It distinguishes pre-existing changes and verifies acceptance criteria; approved filenames alone do not establish correctness.
+
+For small explicit fixes or documentation edits, a direct task is sufficient. Do not create FEATURE/PLAN files mechanically for every change.
 
 ## Documentation Roles
 
@@ -141,8 +157,22 @@ The command compares the current git diff to the approved feature and plan, high
 | `/plan-project` | No | Proposes only | Documentation only | Proposes only |
 | `/plan-feature` | No | Proposes only | Documentation only | Proposes only |
 | `/plan-implementation` | No | No redesign | Documentation only | No |
-| `/implement-feature` | Yes | No | Only approved files | No |
+| `/implement-feature` | Yes | No | Only approved files and progress bookkeeping | Only explicitly approved |
 | `/review-scope` | No | No | No | No |
+
+## Update an Existing Installation
+
+Rerunning the initializer fills missing files and reports differing files without overwriting them. It is not an automatic upgrade command.
+
+Review `.ai/standards/` against this repo's `core/` and selected `frameworks/`, and `.cursor/` against `cursor/rules/` and `cursor/commands/`. Apply the desired changes together and inspect the diff. Keep project-specific scope, decisions, feature plans, approval history, and local customizations. `.ai/templates/` may be updated independently of already-filled project documents.
+
+For installations created before full standards were copied, rerun initialization first, then review and replace the old summarized Cursor rules with the current context adapters. Without updating `01-project-context.mdc`, old projects will not require loading the full standards.
+
+## Verification of This System
+
+Run `bash -n scripts/init-project.sh` and `git diff --check`. Smoke-check initialization in a temporary directory for a single backend, a native app, and a mixed monorepo. Re-run to confirm idempotence and preservation of custom files; invalid arguments or destination collisions must fail before creating files.
+
+These checks verify file delivery and instruction consistency. Actual agent compliance still needs a real Cursor feature run. No dependency installation, application build, or deployment is performed by the initializer.
 
 ## Current Standards
 

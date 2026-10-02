@@ -2,6 +2,8 @@
 
 This standard extends the Core Development Standard, TypeScript Standard, and React Standard. It defines the React Native and Expo conventions for projects that follow this development system.
 
+Read React's shared component, hooks, forms, state, query, and API sections. This native standard overrides web markup, `Container`/DOM-id rules, styled-components, browser storage, and web routing. Resolve `src/features/` relative to each mobile app root in a monorepo.
+
 ## Primary Principle
 
 React Native features should use the same predictable organization and simple state principles as React web features, while following native platform conventions.
@@ -52,7 +54,7 @@ src/
         └── users-screen.tsx
 ```
 
-Do not introduce React Navigation alongside Expo Router without explicit approval.
+Do not introduce a parallel navigation tree alongside Expo Router. React Navigation primitives used by Expo Router, such as its supported theme provider, are compatible with this rule.
 
 Use Expo Router's established route, parameter, layout, and navigation patterns. Do not build a parallel custom navigation abstraction.
 
@@ -157,6 +159,8 @@ Split global client state by lifecycle:
 
 Do not persist temporary UI state, server-state cache, form values, or incidental screen state by default.
 
+Persisting a session does not imply storing credentials in AsyncStorage. Use the approved platform credential-storage mechanism for tokens; persist only appropriate non-sensitive state through the general store. Resolve hydration before selecting authenticated routes. Clear user-scoped query data and temporary UI state on logout or account change.
+
 The global UI state should expose a clear, direct API for opening, closing, and configuring these surfaces. Keep each UI surface's current payload and visibility state explicit.
 
 Do not place ordinary feature form state, server state, temporary input state, or isolated component toggles into the global store.
@@ -209,14 +213,17 @@ Do not add token refresh behavior when the selected authentication architecture 
 
 Expo applications using EAS Update must implement OTA checking in one root-level `useExpoUpdate` hook, invoked once from the root layout.
 
+For new Expo projects, include this OTA flow in the foundation plan. Keep the developer's chosen policy: startup plus every app-status change, including `inactive` and `background`, not only `active`.
+
 The hook must:
 
 1. check for an update when the application starts;
 2. subscribe to every `AppState` `change` event and check again on each event;
-3. prevent overlapping checks with a local in-flight ref;
+3. prevent overlapping checks with a local in-flight ref (events during a check share that in-flight operation, rather than start parallel requests);
 4. call `checkForUpdateAsync`, then `fetchUpdateAsync` and `reloadAsync` only when an update is available;
 5. handle failure without breaking the running app and log it through the project's logging approach;
-6. unsubscribe from the app-state listener on cleanup.
+6. unsubscribe from the app-state listener on cleanup;
+7. skip unsupported web/development runtimes and disabled updates before invoking native OTA APIs.
 
 ```ts
 const isCheckingRef = useRef(false);
@@ -229,6 +236,10 @@ const subscription = AppState.addEventListener('change', () => {
 Do not run OTA checks from feature screens or create multiple app-state listeners for updates.
 
 Document the Expo update URL, runtime-version policy, and release-channel strategy in the mobile project's `STACK.md` or an ADR. OTA updates must stay compatible with the installed native runtime.
+
+Do not put required work after `reloadAsync`; the JavaScript runtime may be replaced immediately. Verify the full update flow in an update-enabled build. App-state callbacks do not guarantee background execution after the OS suspends the app. Do not add polling or background-task infrastructure to force it.
+
+API support and reload behavior: [Expo Updates documentation](https://docs.expo.dev/versions/latest/sdk/updates/). This project's every-change policy is deliberate; do not silently replace it with a different trigger policy.
 
 ## Native Platform Capabilities
 

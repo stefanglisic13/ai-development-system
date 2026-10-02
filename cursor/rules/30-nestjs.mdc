@@ -1,22 +1,12 @@
 ---
-description: NestJS conventions for predictable modules, direct TypeORM access, DTOs, guards, and logging.
+description: NestJS backend architecture and implementation conventions.
 alwaysApply: false
 ---
 
-# NestJS Rules
+# NestJS Context
 
-Follow the canonical backend feature structure in `.ai/STRUCTURE.md`.
+Apply only to NestJS backend apps, including controllers, services, DTOs, entities, and their planning.
 
-Each feature module includes its required module, controller, service, DTO, entity, and response DTO structure.
+Before planning, implementing, or reviewing relevant work, read `.ai/standards/frameworks/nestjs.md` in full and follow the approved project documents. The canonical standard contains the rules; this file only routes context.
 
-- Controllers own HTTP routes, request DTOs, guards, endpoint authorization, and HTTP response boundaries. Keep them thin.
-- Apply authorization through existing guards and decorators on controllers or endpoints. Do not duplicate it in services without a real non-HTTP use case.
-- Services own linear business flows: load data, validate realistic business conditions, calculate, persist, and return the response DTO.
-- Inject and use the TypeORM repository directly in the feature service.
-- Do not add repository layers, use cases, handlers, managers, mappers, factories, or generic service abstractions.
-- Keep all feature request and response DTO classes in the feature's single DTO file.
-- Never return a TypeORM entity directly from an API endpoint. Map it explicitly to the response DTO at the local service or controller boundary.
-- Validate request shape in DTOs and business rules in services. Add only realistic validation.
-- Use built-in NestJS exceptions unless a custom exception has a concrete project-level benefit.
-- Use the approved global exception filter and logger for consistent errors and meaningful failure logs. Do not add a logging library without approval.
-- Treat schema changes as explicit feature work. Follow the existing migration convention and do not make unrelated schema changes.
+The always-applied project-context rule requires this read even before source files exist. Resolve application boundaries from `.ai/STACK.md` and `.ai/STRUCTURE.md`; file extension alone does not determine the framework.

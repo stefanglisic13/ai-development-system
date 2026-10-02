@@ -1,21 +1,12 @@
 ---
-description: TypeScript conventions for clear contracts without unnecessary type-level abstraction.
-globs:
-  - "**/*.ts"
-  - "**/*.tsx"
+description: TypeScript contracts and typing conventions.
 alwaysApply: false
 ---
 
-# TypeScript Rules
+# TypeScript Context
 
-- Use `type` by default. Use `interface` only when a framework/library requires it or extension behavior has a concrete current benefit.
-- Type business entities, API requests, API responses, and meaningful data exchanged between layers.
-- Use classes for NestJS DTOs and explicit response DTOs for API output. Never return persistence entities directly from an API endpoint.
-- Use `enum` for finite business domains such as roles and statuses.
-- Mark a field optional only when it is genuinely optional in the contract.
-- Let TypeScript infer return types when the local implementation is clear. Add an explicit return type for meaningful public contracts or when it prevents an unintended result.
-- Avoid `as`. Use it only for a narrow, verified boundary where TypeScript cannot reasonably infer a guaranteed fact. Never use it merely to silence an error.
-- Do not use `any` for business entities or API contracts. An isolated `any` is acceptable only when a value cannot reasonably be typed.
-- Avoid unnecessary generics, mapped types, conditional types, overloaded signatures, and type-level utilities.
+Apply to TypeScript code and its planning, including `.ts` and `.tsx` files.
 
-Prefer an explicit, readable type over a clever reusable type.
+Before planning, implementing, or reviewing relevant work, read `.ai/standards/frameworks/typescript.md` in full and follow the approved project documents. The canonical standard contains the rules; this file only routes context.
+
+The always-applied project-context rule requires this read even before source files exist. Resolve application boundaries from `.ai/STACK.md` and `.ai/STRUCTURE.md`; file extension alone does not determine the framework.

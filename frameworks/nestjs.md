@@ -12,6 +12,8 @@ Prefer a clear flow from controller to service to TypeORM repository. Do not add
 
 Every feature module uses the following structure:
 
+This is the business-feature template. Shared infrastructure modules such as email or logging use only their approved responsibilities; do not invent database tables or HTTP endpoints just to fill the template.
+
 ```text
 users/
 ├── dto/
@@ -80,6 +82,8 @@ create(@Body() dto: CreateUserDto) {
 ```
 
 Do not duplicate authorization checks inside services unless the operation can be called outside the protected HTTP controller boundary or the existing project architecture requires it.
+
+Controller guards must cover resource ownership or tenant access where required, not just the user's role. Query data within the authorized resource scope. If the required resource information is only available inside the operation, keep that check at the service data boundary; never omit it to keep the controller thin.
 
 Do not introduce a new guard, decorator, permission system, or authorization abstraction without approval.
 
@@ -188,6 +192,8 @@ private toUserResponseDto(user: User): UserResponseDto {
 }
 ```
 
+List public fields explicitly. Do not spread an entity and hide selected properties with `undefined`. A DTO annotation alone does not remove runtime fields. Use an explicit return type or `satisfies ResponseDto` at the response boundary while preserving inference for local functions.
+
 ## Entities
 
 Every feature defines its TypeORM entity in its entity file.
@@ -221,6 +227,8 @@ Keep the global validation behavior in the application bootstrap or a dedicated 
 
 Validate request-shape constraints in DTOs through this pipeline.
 
+`transform: true` is not arbitrary field coercion. Declare needed conversions and nested validation explicitly according to the installed validation libraries. The example uses Nest's default error format; customize the error format only when the approved client contract requires it.
+
 Validate business rules in the service at the point where the required data is available.
 
 Handle realistic failure cases explicitly and close to the operation that can fail. Use built-in NestJS HTTP exceptions when sufficient:
@@ -250,6 +258,8 @@ validate business conditions
 Use a temporary local state, such as `INITIALIZING` or `PENDING`, only when the feature genuinely needs to represent an operation that has started but is not yet complete.
 
 The `try/catch` should cover the external boundary and its immediate dependent writes, not the entire service method. If a failed external call leaves a temporary local record or state that must not remain, perform the smallest explicit compensation before returning a meaningful error.
+
+Distinguish a failed remote operation from a successful remote operation followed by a failed local write. Do not delete the only local record of a remote resource that may already exist. Preserve known identifiers and use the feature's approved recovery behavior; a database rollback cannot undo a remote API call.
 
 Do not add generic saga, workflow, retry, queue, or transaction abstractions for a single external call unless the approved architecture requires them.
 
@@ -284,6 +294,8 @@ When a feature requires an entity change, relation, index, migration, or data tr
 3. do not make unrelated schema improvements at the same time.
 
 Do not add indexes, constraints, cascade rules, eager relations, or database hooks for hypothetical future cases.
+
+When a current business invariant must survive concurrent requests, enforce it with the relevant database constraint. Use a local TypeORM transaction for writes that must succeed together; use its transaction manager for all participating writes. No generic transaction layer is needed. Do not hold a database transaction across a slow external API call by default.
 
 ## Final Check
 

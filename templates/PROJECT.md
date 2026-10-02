@@ -1,5 +1,13 @@
 # Project
 
+Status: Draft
+
+Revision: 1
+
+Approved revision: Not approved
+
+Approval reference: <!-- Actual developer message/date; never infer approval from filled sections. -->
+
 ## Product Goal
 
 <!-- What is this product, which problem does it solve, and for whom? -->

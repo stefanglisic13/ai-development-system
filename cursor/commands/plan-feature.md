@@ -2,7 +2,7 @@
 
 Plan the requested feature. Do not write application code, install dependencies, refactor, or create implementation files.
 
-First read:
+First follow `01-project-context.mdc` to load applicable canonical standards, then read:
 
 - `.ai/PROJECT.md`
 - `.ai/ARCHITECTURE.md`
@@ -12,7 +12,7 @@ First read:
 - relevant ADRs
 - similar existing code and the relevant feature modules.
 
-Create or update `.ai/features/<feature-name>/FEATURE.md` using the approved template.
+Create or update `.ai/features/<feature-name>/FEATURE.md` using `.ai/templates/FEATURE.md`. Use a kebab-case feature name. Save as Draft while decisions are being reviewed.
 
 The feature document must define:
 
@@ -27,4 +27,4 @@ The feature document must define:
 - acceptance criteria;
 - open questions.
 
-Do not make an undecided product or architectural decision. Present options and tradeoffs, then wait for developer approval. Do not mark the feature approved until all blocking questions are resolved.
+Do not make an undecided product or architectural decision. Present options and tradeoffs for missing choices. Resolved questions alone do not constitute approval: record explicit developer approval of the feature revision before marking it approved.

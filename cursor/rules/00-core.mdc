@@ -1,11 +1,13 @@
 ---
-description: Enforces the core development philosophy: simple, scoped, predictable implementation.
+description: Core development scope and simplicity.
 alwaysApply: true
 ---
 
 # Core Development Rules
 
 Implement the smallest solution that completely satisfies the explicit request.
+
+Read `.ai/standards/core/core-development.md` before project work. That document is the canonical core standard; the bullets below are a compact reminder, not a substitute.
 
 - Follow existing project architecture and patterns before generic best practices.
 - Modify only code directly related to the task.
@@ -27,4 +29,4 @@ When the task requires an undecided product or architecture choice:
 
 Do not silently choose a new dependency, global abstraction, folder structure, infrastructure approach, or unusual defensive behavior.
 
-Before completing a change, check: is every addition required by the request, required by established architecture, or supported by a real current use case? If not, remove it.
+Before completing a change, check whether each of your additions belongs to the approved scope. Correct your own out-of-scope work, preserving all pre-existing changes. Dependency approval already recorded in an approved plan is sufficient; do not ask for it again.

@@ -42,7 +42,7 @@ The response contract should make public fields explicit and prevent accidental 
 
 ## Backend DTOs
 
-Use classes for NestJS DTOs, including request and response DTOs where the project architecture uses class-based serialization.
+Use classes for both request and response NestJS DTOs. Frontend contracts use `type`; do not require frontend code to import backend runtime decorators.
 
 Request DTO classes should own input validation through the existing NestJS validation approach.
 
@@ -119,6 +119,8 @@ Before using an assertion:
 Never use `as` merely to silence an error, pretend uncertain data is valid, or bypass a missing type design.
 
 Avoid double assertions such as `value as unknown as SomeType` unless explicitly approved.
+
+`as const` for literal inference and `satisfies` for contract checking are allowed: they do not pretend an uncertain value has a different shape. Use them only where they simplify the code.
 
 ## `any` and Unknown Data
 

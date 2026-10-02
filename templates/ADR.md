@@ -1,8 +1,10 @@
 # ADR-<number>: <short decision title>
 
-Status: Proposed | Accepted | Superseded | Rejected
+Status: Proposed
 
 Date: YYYY-MM-DD
+
+Approval reference: <!-- Record explicit acceptance before marking Accepted. -->
 
 ## Context
 
