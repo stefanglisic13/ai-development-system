@@ -14,6 +14,8 @@ First follow `01-project-context.mdc` to load applicable canonical standards, th
 
 Create or update `.ai/features/<feature-name>/FEATURE.md` using `.ai/templates/FEATURE.md`. Use a kebab-case feature name. Save as Draft while decisions are being reviewed.
 
+Resolve `Requested by` and `Requested on` under `01-project-context.mdc`'s Documentation Identity rule. Keep request attribution separate from later approval attribution.
+
 The feature document must define:
 
 - goal and user flow;

@@ -10,6 +10,10 @@ Revision: 1
 
 Feature revision: TBD
 
+Requested by: Unknown
+
+Requested on: YYYY-MM-DD
+
 ## Implementation Scope
 
 <!-- State exactly what this plan implements. -->
@@ -95,8 +99,8 @@ If implementation requires a change outside this plan, stop and report:
 
 Approved revision: Not approved
 
-Approved by:
+Approved by: Not approved
 
-Approved on:
+Approved on: Not approved
 
 Approval reference:

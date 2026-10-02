@@ -8,6 +8,8 @@ If the feature is not approved or has unresolved blocking questions, stop and ex
 
 Create or update `.ai/features/<feature-name>/PLAN.md` using `.ai/templates/PLAN.md`. Keep approval separate from progress, and reference the approved feature revision. Do not mark your own proposed plan approved.
 
+Resolve the plan's request attribution under `01-project-context.mdc`'s Documentation Identity rule. Record the actual approver only after an explicit approval message.
+
 The plan must:
 
 - state exact implementation scope and explicit exclusions;

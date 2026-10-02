@@ -4,7 +4,15 @@ Status: Draft
 
 Revision: 1
 
+Requested by: Unknown
+
+Requested on: YYYY-MM-DD
+
 Approved revision: Not approved
+
+Approved by: Not approved
+
+Approved on: Not approved
 
 Approval reference: <!-- Actual developer message/date; never infer approval from filled sections. -->
 

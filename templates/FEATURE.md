@@ -6,6 +6,10 @@ Progress: Not started
 
 Revision: 1
 
+Requested by: Unknown
+
+Requested on: YYYY-MM-DD
+
 ## Goal
 
 <!-- State the user-visible outcome this feature must achieve. -->

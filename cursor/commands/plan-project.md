@@ -24,4 +24,6 @@ Create or update reviewable drafts of only these project documents as needed, re
 
 Use `.ai/templates/`. Never treat example folders or packages as approved selections. Record each app's root path and framework in `STACK.md`, including monorepo boundaries, and record verified package-manager and validation commands. Remove irrelevant example sections.
 
+For project and ADR attribution fields, resolve the name under `01-project-context.mdc`'s Documentation Identity rule. A Git-derived name identifies the request record only; it never substitutes for explicit approval.
+
 Summarize scope, stack, structure, and blocking questions. Mark documents approved only after explicit developer approval of the presented revision. Do not bootstrap application code during this command.

@@ -4,6 +4,14 @@ Status: Proposed
 
 Date: YYYY-MM-DD
 
+Requested by: Unknown
+
+Requested on: YYYY-MM-DD
+
+Approved by: Not approved
+
+Approved on: Not approved
+
 Approval reference: <!-- Record explicit acceptance before marking Accepted. -->
 
 ## Context

@@ -39,6 +39,16 @@ Before planning or implementing work, read the relevant files:
 
 Treat approved documentation as binding. Do not redesign approved architecture during implementation.
 
+## Documentation Identity
+
+When creating or updating a request or approval record, resolve the person's display name in this order:
+
+1. a name explicitly provided in the current conversation;
+2. the non-empty result of `git config --get user.name`, run from the project root;
+3. `Unknown` if neither is available.
+
+Use that name in `Requested by` and `Approved by` fields. Git identity is a convenience for attribution, not evidence of approval: mark a document approved only after an explicit approval message. Do not use `git log` to infer the requester or approver, because an earlier commit may belong to someone else. Do not record the Git email address unless the developer explicitly requests it. When Git supplied the name, append ` (from Git config)` so the source is clear. Do not rewrite historical records merely because the current Git identity differs.
+
 If documentation is missing, `/plan-project` may create drafts from installed templates and repository evidence. Mark unknowns `TBD` and absent applications `Not applicable`. Only unresolved decisions that affect the requested implementation block coding; unrelated blank sections do not.
 
 When implementation follows an approved feature plan:
