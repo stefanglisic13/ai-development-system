@@ -1,0 +1,29 @@
+---
+description: Requires project documentation and approved feature plans to be used as the source of truth.
+alwaysApply: true
+---
+
+# Project Context Rules
+
+Project documentation in `.ai/` is the source of truth for project-specific decisions.
+
+Before planning or implementing work, read the relevant files:
+
+- `.ai/PROJECT.md` for product scope and non-goals;
+- `.ai/ARCHITECTURE.md` for system boundaries and technical decisions;
+- `.ai/STRUCTURE.md` for required folders, files, and naming;
+- `.ai/STACK.md` for approved technologies and dependency choices;
+- `.ai/CURRENT.md` for active work and temporary constraints;
+- relevant `.ai/decisions/ADR-*.md` files;
+- relevant `.ai/features/<feature>/FEATURE.md` and `PLAN.md` files.
+
+Treat approved documentation as binding. Do not redesign approved architecture during implementation.
+
+If documentation is missing or conflicts with the requested task, identify the gap and ask for direction instead of inventing a decision.
+
+When implementation follows an approved feature plan:
+
+- implement only the requested phase;
+- change only the files and create only the files listed in the plan;
+- do not add dependencies, tests, refactors, or abstractions not listed in the plan;
+- stop and request approval if the plan must change.

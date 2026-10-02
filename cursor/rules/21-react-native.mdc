@@ -1,0 +1,36 @@
+---
+description: React Native and Expo conventions for feature structure, Expo Router, StyleSheet, and global UI state.
+alwaysApply: false
+---
+
+# React Native and Expo Rules
+
+Use `src/features/` for feature code. Expo route files stay thin; feature screens, logic, API calls, components, hooks, and types live under the relevant feature.
+
+- Use Expo Router. Keep route files thin and keep feature logic and complex UI in the feature folder.
+- Protect authenticated route groups centrally in the root layout when the app uses session auth.
+- Mount error, query, theme, and global UI providers once in the root layout. Do not duplicate them inside features.
+- Use `StyleSheet` for static styles. Use concise role-based style names such as `container`, `header`, `content`, and `actions`.
+- A narrow dynamic runtime value may be combined with a named `StyleSheet` style. Do not move static style objects into JSX.
+- Keep tokenized colors, spacing, typography, and layout values in the approved theme source.
+- Do not introduce styled-components, NativeWind, or a UI library without approval.
+- Keep component styles in the component file unless the styles are large, independent, or genuinely reused.
+- Use local state for isolated feature behavior.
+- Use Zustand as the default global client store when the project's approved stack includes it. Separate temporary global UI state from durable persisted state such as a session, and read it through narrow selector hooks.
+- Use temporary global state for cross-screen modals, bottom sheets, toasts, and other application-wide UI surfaces.
+- Use TanStack Query for server state and Formik with Yup for forms. Keep query keys, query or mutation options, invalidation, and feature feedback in the feature `api/` location. Configure `QueryClient` once at the root.
+- Keep one shared HTTP client. When the approved auth architecture has refresh tokens, keep token refresh and session reset in that API boundary rather than feature requests.
+- Do not introduce React Navigation alongside Expo Router or another state library without approval.
+- Build UI components internally. Promote them to shared code only after real current reuse.
+
+## OTA Updates
+
+For Expo applications using EAS Update, implement one root-level `useExpoUpdate` hook.
+
+- Check for OTA updates on initial application start and on every `AppState` `change` event.
+- Prevent overlapping checks with an in-flight ref.
+- When an update is available, fetch it and reload the app.
+- Handle update errors without breaking the current session and unsubscribe from the app-state listener on cleanup.
+- Do not create OTA checks in feature screens or multiple app-state listeners for updates.
+
+Use platform-specific files only when platform behavior genuinely differs.
