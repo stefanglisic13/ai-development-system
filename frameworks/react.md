@@ -45,6 +45,40 @@ Feature folders should have predictable locations for:
 
 Do not add folders such as `utils`, `helpers`, `constants`, `services`, `models`, `providers`, `contexts`, or `state` to a single feature unless they belong to the established project structure or a concrete current need is approved.
 
+## Shared Code
+
+Cross-feature code lives in `src/shared/`. React Native uses the same folders. Its own standard still replaces web markup, styling, navigation, and runtime behavior.
+
+Create a shared folder only when it has a file. Do not add empty `api`, `components`, `hooks`, `providers`, `theme`, or `utils` folders in advance.
+
+```text
+src/shared/
+├── api/
+│   └── client.ts
+├── components/
+│   ├── button.tsx
+│   └── index.ts
+├── hooks/
+│   └── use-example.ts
+├── providers/
+│   ├── toast.tsx
+│   └── index.ts
+├── theme/
+│   └── theme.css
+└── utils/
+    └── example.ts
+```
+
+- `api/` holds the one HTTP client. Feature `api/` files call that client.
+- `components/` holds reusable UI. Export those components from `components/index.ts`. Screens import the barrel.
+- Import `src/shared` through the `@shared` alias, for example `@shared/api/client.ts`. Map `@shared/*` in TypeScript `paths` and in the bundler alias. Do not use a relative path into `shared`.
+- `providers/` holds root-mounted global UI, such as the toast. Export each provider from `providers/index.ts` and mount it once in the application root. Do not mount a second copy inside a feature.
+- `theme/` holds the visual tokens. Styled components consume those tokens.
+- `hooks/` holds a hook only after more than one feature uses it.
+- `utils/` holds a function only after more than one feature uses it.
+
+Feature-specific screens, components, hooks, and API calls stay under `src/features/`.
+
 ## Root Application Composition
 
 Mount application-wide providers once at the application root. The root composition owns the error boundary, TanStack Query provider, theme provider, router, and global UI surfaces such as toasts, dialogs, confirmation dialogs, and global loaders.
@@ -140,7 +174,7 @@ Keep a component's styles close to the component. Do not create a separate style
 
 Do not introduce CSS Modules, Tailwind, inline style objects, or another styling system alongside `styled-components` without explicit approval.
 
-Keep shared visual tokens, such as colors, spacing, typography, breakpoints, and border radii, in one approved theme source. Styled components should consume those tokens rather than repeat raw visual values throughout feature components.
+Keep shared visual tokens, such as colors, spacing, typography, breakpoints, and border radii, in `src/shared/theme/`. Styled components should consume those tokens rather than repeat raw visual values throughout feature components.
 
 Create a shared UI primitive, page template, or layout only after it has multiple real current usages or is an approved application-wide foundation. Do not turn every local component into a design-system component.
 
@@ -216,7 +250,7 @@ Do not introduce another data-fetching library or a generic API abstraction with
 
 ## API Boundary
 
-Keep the application's HTTP client in one shared API boundary. Feature `api/` files call that client; they do not configure independent clients or duplicate request interceptors.
+Keep the application's HTTP client in `src/shared/api/`. Feature `api/` files call that client; they do not configure independent clients or duplicate request interceptors.
 
 When the selected authentication architecture uses access and refresh tokens, keep token attachment, single-flight refresh, session clearing, and redirect to sign-in in that shared API boundary. Do not implement refresh behavior inside individual feature requests.
 
@@ -283,7 +317,7 @@ Do not add fallback behavior for impossible or highly unlikely states. Handle re
 
 Before completing a React change, verify:
 
-1. Does the feature live under `src/features/` and follow the canonical folder structure?
+1. Does the feature live under `src/features/`, and does cross-feature code live under `src/shared/`?
 2. Did a component or hook move to its own file only for a clear current reason?
 3. Are app-wide providers mounted only at the application root?
 4. Is local state used before considering temporary or persistent global Zustand state?

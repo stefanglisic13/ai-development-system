@@ -33,7 +33,7 @@ src/
         └── users-screen.tsx
 ```
 
-Keep feature-specific components, hooks, API calls, and types inside the feature. Move code to shared locations only after there is a real cross-feature use case.
+Keep feature-specific components, hooks, API calls, and types inside the feature. Move code to `src/shared/` only after there is a real cross-feature use case. Those folders are defined in the React standard.
 
 Do not create alternative feature structures or additional layers for one screen without an approved architectural reason.
 
