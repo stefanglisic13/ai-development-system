@@ -51,6 +51,22 @@ Initialize a concrete project with the setup script, then commit the generated c
 ./scripts/init-project.sh ../my-app --typescript --react --cursor --claude   # both
 ```
 
+### Install Without a Local Clone
+
+Run from the new project's root; `scripts/install.sh` clones this repository into a temporary directory, runs the initializer against the current directory, and removes the temporary copy:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/stefanglisic13/ai-development-system/main/scripts/install.sh \
+  | bash -s -- --typescript --react --claude
+```
+
+All initializer options are passed through. Set `AI_DEV_SYSTEM_REF` to install a specific branch or tag. If the repository is private, the raw URL is not reachable; clone over SSH instead:
+
+```sh
+tmp="$(mktemp -d)" && git clone --depth 1 git@github.com:stefanglisic13/ai-development-system.git "$tmp" \
+  && "$tmp/scripts/init-project.sh" . --typescript --react --claude; rm -rf "$tmp"
+```
+
 Available stack options are `--typescript`, `--react`, `--react-native`, and `--nestjs`. Agent options are `--cursor` and `--claude`; without either, only the Cursor adapter is installed. Both adapters can be installed together and share the same `.ai/` context. The script never overwrites an existing file.
 
 For an Expo app use `--typescript --react-native`; for a full monorepo include all applicable frameworks. Framework paths are resolved within each app, so record the app roots during `/plan-project`. The script installs documentation only: it does not install dependencies or scaffold apps. Use an existing project directory; managed destination symlinks are rejected before writing.
