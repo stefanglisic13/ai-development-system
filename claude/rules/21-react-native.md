@@ -1,0 +1,7 @@
+# React Native and Expo Context
+
+Apply only to React Native/Expo apps. Also read the shared portions of `.ai/standards/frameworks/react.md`; this native standard overrides web-only rules.
+
+Before planning, implementing, or reviewing relevant work, read `.ai/standards/frameworks/react-native.md` in full and follow the approved project documents. The canonical standard contains the rules; this file only routes context.
+
+The always-applied project-context rule requires this read even before source files exist. Resolve application boundaries from `.ai/STACK.md` and `.ai/STRUCTURE.md`; file extension alone does not determine the framework.

@@ -13,14 +13,19 @@ Options:
   --react-native     Include React Native/Expo and shared React principles
                      (requires --typescript).
   --nestjs           Include NestJS (requires --typescript).
+  --cursor           Install the Cursor adapter (.cursor/).
+  --claude           Install the Claude Code adapter (.claude/).
   -h, --help         Show this help.
 
-Installs .ai/ context, templates, full standards, and .cursor/ adapters.
+Installs .ai/ context, templates, full standards, and the selected agent
+adapters. Without --cursor or --claude, the Cursor adapter is installed.
 Existing files are preserved. Differing files are reported, not upgraded.
 No packages are installed and no application code is generated.
 
 Example:
   ./scripts/init-project.sh ../my-app --typescript --react --nestjs
+  ./scripts/init-project.sh ../my-app --typescript --react --claude
+  ./scripts/init-project.sh ../my-app --typescript --nestjs --cursor --claude
 EOF
 }
 
@@ -47,6 +52,8 @@ use_typescript=false
 use_react=false
 use_react_native=false
 use_nestjs=false
+use_cursor=false
+use_claude=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -54,6 +61,8 @@ while [[ $# -gt 0 ]]; do
     --react) use_react=true ;;
     --react-native) use_react_native=true ;;
     --nestjs) use_nestjs=true ;;
+    --cursor) use_cursor=true ;;
+    --claude) use_claude=true ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown option: $1" >&2; usage; exit 1 ;;
   esac
@@ -63,6 +72,10 @@ done
 if { [[ "$use_react" == true ]] || [[ "$use_react_native" == true ]] || [[ "$use_nestjs" == true ]]; } && [[ "$use_typescript" != true ]]; then
   echo "React, React Native, and NestJS standards require --typescript." >&2
   exit 1
+fi
+
+if [[ "$use_cursor" != true && "$use_claude" != true ]]; then
+  use_cursor=true
 fi
 
 if [[ ! -d "$target_input" ]]; then
@@ -95,31 +108,48 @@ for template_file in "$system_dir"/templates/*.md; do
 done
 
 queue_copy "core/core-development.md" ".ai/standards/core/core-development.md"
-queue_copy "cursor/rules/00-core.mdc" ".cursor/rules/00-core.mdc"
-queue_copy "cursor/rules/01-project-context.mdc" ".cursor/rules/01-project-context.mdc"
 
 if [[ "$use_typescript" == true ]]; then
   queue_copy "frameworks/typescript.md" ".ai/standards/frameworks/typescript.md"
-  queue_copy "cursor/rules/10-typescript.mdc" ".cursor/rules/10-typescript.mdc"
 fi
 if [[ "$use_react" == true || "$use_react_native" == true ]]; then
   queue_copy "frameworks/react.md" ".ai/standards/frameworks/react.md"
 fi
-if [[ "$use_react" == true ]]; then
-  queue_copy "cursor/rules/20-react.mdc" ".cursor/rules/20-react.mdc"
-fi
 if [[ "$use_react_native" == true ]]; then
   queue_copy "frameworks/react-native.md" ".ai/standards/frameworks/react-native.md"
-  queue_copy "cursor/rules/21-react-native.mdc" ".cursor/rules/21-react-native.mdc"
 fi
 if [[ "$use_nestjs" == true ]]; then
   queue_copy "frameworks/nestjs.md" ".ai/standards/frameworks/nestjs.md"
-  queue_copy "cursor/rules/30-nestjs.mdc" ".cursor/rules/30-nestjs.mdc"
 fi
 
-for command_file in "$system_dir"/cursor/commands/*.md; do
-  queue_copy "cursor/commands/$(basename -- "$command_file")" ".cursor/commands/$(basename -- "$command_file")"
-done
+# Queue one agent adapter: <source dir> <destination dir> <rule extension>.
+queue_adapter() {
+  local source="$1" destination="$2" extension="$3"
+  queue_copy "$source/rules/00-core.$extension" "$destination/rules/00-core.$extension"
+  queue_copy "$source/rules/01-project-context.$extension" "$destination/rules/01-project-context.$extension"
+  if [[ "$use_typescript" == true ]]; then
+    queue_copy "$source/rules/10-typescript.$extension" "$destination/rules/10-typescript.$extension"
+  fi
+  if [[ "$use_react" == true ]]; then
+    queue_copy "$source/rules/20-react.$extension" "$destination/rules/20-react.$extension"
+  fi
+  if [[ "$use_react_native" == true ]]; then
+    queue_copy "$source/rules/21-react-native.$extension" "$destination/rules/21-react-native.$extension"
+  fi
+  if [[ "$use_nestjs" == true ]]; then
+    queue_copy "$source/rules/30-nestjs.$extension" "$destination/rules/30-nestjs.$extension"
+  fi
+  for command_file in "$system_dir/$source"/commands/*.md; do
+    queue_copy "$source/commands/$(basename -- "$command_file")" "$destination/commands/$(basename -- "$command_file")"
+  done
+}
+
+if [[ "$use_cursor" == true ]]; then
+  queue_adapter "cursor" ".cursor" "mdc"
+fi
+if [[ "$use_claude" == true ]]; then
+  queue_adapter "claude" ".claude" "md"
+fi
 
 # Preflight every destination before making any changes.
 check_directory_path() {
@@ -174,4 +204,9 @@ if [[ "$different_count" -gt 0 ]]; then
   echo "$different_count existing files differ; this run did not update them."
   echo "Review differences before relying on new rules. See this system's README update instructions."
 fi
-echo "Next: open the project in Cursor and run /plan-project."
+if [[ "$use_cursor" == true ]]; then
+  echo "Next (Cursor): open the project in Cursor and run /plan-project."
+fi
+if [[ "$use_claude" == true ]]; then
+  echo "Next (Claude Code): run claude in the project root and run /plan-project."
+fi

@@ -1,0 +1,27 @@
+# Core Development Rules
+
+Implement the smallest solution that completely satisfies the explicit request.
+
+Read `.ai/standards/core/core-development.md` before project work. That document is the canonical core standard; the bullets below are a compact reminder, not a substitute.
+
+- Follow existing project architecture and patterns before generic best practices.
+- Modify only code directly related to the task.
+- Do not refactor, rename, reorganize, clean up, or optimize unrelated code.
+- Do not create files merely to reduce line count. Large, coherent files are acceptable.
+- Do not create helpers, wrappers, factories, generic services, generic repositories, adapters, base classes, or extra layers without an existing architectural requirement or a real current use case.
+- Keep feature-specific logic local to its feature and keep backend business flows linear and visible.
+- Handle realistic failures only. Do not add speculative guards, fallbacks, validation, or edge-case behavior.
+- Do not add tests, fixtures, mocks, or test helpers unless explicitly requested.
+- Do not add or install dependencies without explicit developer approval.
+- Use clear business names, kebab-case file names, and feature names as the base of files in a feature folder.
+- Explain business intent in comments only when the code itself cannot communicate it.
+
+When the task requires an undecided product or architecture choice:
+
+1. identify the decision;
+2. give 2–3 reasonable options and concise tradeoffs;
+3. wait for developer approval.
+
+Do not silently choose a new dependency, global abstraction, folder structure, infrastructure approach, or unusual defensive behavior.
+
+Before completing a change, check whether each of your additions belongs to the approved scope. Correct your own out-of-scope work, preserving all pre-existing changes. Dependency approval already recorded in an approved plan is sufficient; do not ask for it again.
