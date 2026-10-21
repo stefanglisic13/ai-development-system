@@ -56,6 +56,19 @@ export class UsersModule {}
 
 Keep module configuration direct and local. Do not introduce dynamic modules or generic registration helpers for ordinary feature modules.
 
+Reuse another feature's logic through NestJS dependency injection. Export the provider from its owning module and import that module where it is consumed.
+
+```ts
+@Module({
+  imports: [TypeOrmModule.forFeature([Booking]), UsersModule],
+  controllers: [BookingsController],
+  providers: [BookingsService],
+})
+export class BookingsModule {}
+```
+
+Do not instantiate services or repositories manually, and do not copy existing logic from another feature to avoid an import.
+
 ## Controllers
 
 Controllers are responsible for the HTTP boundary.
@@ -108,6 +121,28 @@ A service may be long when its code belongs to the same feature and the flow rem
 
 Use a private method only when it represents a genuinely independent responsibility or a repeated operation within the feature. Keep it in the service unless it has multiple real consumers or has become sufficiently complex to require its own approved file.
 
+Write the flow for a first-time reader:
+
+- use domain names such as `pendingBookings` or `guestEmail`, not `data`, `arr`, `item2`, or `x`;
+- store each meaningful intermediate result in a named `const` instead of chaining several non-trivial transformations;
+- give domain-specific numbers, strings, and defaults a meaningful name;
+- make selection and fallback intent explicit instead of relying on opaque `.pop()`, `[0]`, or `|| 0`.
+
+A single-step calculation may stay inline within a named assignment. For several transformations, name each meaningful stage:
+
+```ts
+const bookedRooms = bookings.flatMap((booking) => booking.rooms);
+const roomsForSelectedNight = bookedRooms.filter(
+  (room) => room.nightDate === selectedNightDate,
+);
+const reservedRoomCount = roomsForSelectedNight.reduce(
+  (totalCount, room) => totalCount + room.quantity,
+  0,
+);
+```
+
+When refactoring an existing expression for readability, preserve its mutation and fallback behavior.
+
 ## TypeORM Access
 
 Inject the TypeORM repository directly into the feature service.
@@ -135,6 +170,46 @@ const booking = await this.bookingRepository.findOne({
 ```
 
 Do not rely on eager relation loading or load broad relation graphs by default. Add a relation only when the current operation uses it.
+
+### Querying
+
+Filter in the database whenever the query can express the condition correctly. Do not fetch a broader dataset and filter it in memory; use in-memory filtering only when the condition depends on application calculations or data unavailable to the query.
+
+Choose the simplest query API that expresses the operation:
+
+- prefer repository methods with `where` and `relations` options;
+- use nested `where` objects for conditions on related entities when the project's TypeORM version supports them;
+- use TypeORM operators such as `In`, `Not`, `IsNull`, and comparison operators instead of handwritten SQL conditions;
+- use `createQueryBuilder` only when repository options cannot clearly express the query, such as aggregations, computed selections, or complex join conditions. Crossing several relations alone is not a reason.
+
+Filtering through a relation does not require loading it. Add it to `relations` only when its data is needed in the result.
+
+```ts
+const upcomingGuestBookings = await this.bookingRepository.find({
+  where: {
+    guest: { id: guestId },
+    hotel: { city: selectedCity },
+    status: Not(BookingStatus.CANCELLED),
+  },
+  relations: ['hotel'],
+});
+```
+
+When refactoring a query, preserve its filtering, null handling, relation loading, ordering, and pagination.
+
+### Transactions
+
+Decide the transaction context before writing the query:
+
+| Context | Approach |
+| --- | --- |
+| No active transaction | Use the injected repository. Do not introduce an `EntityManager` merely to run queries. |
+| Participating in the caller's transaction | Receive the caller's transactional `EntityManager` and use it, or repositories obtained from it through `manager.getRepository(Entity)`. |
+| Operation needs a new transaction | Start it in the coordinating service method and pass its manager to every participating method. |
+
+Every database operation that belongs to a transaction must use the same transactional manager. Do not mix it with globally injected repositories, and do not start a separate transaction or create another manager in a method that should participate in its caller's transaction.
+
+Add an optional `manager` parameter only when a method genuinely needs both transactional and non-transactional execution.
 
 ## DTOs and API Responses
 
@@ -165,6 +240,8 @@ export class UserResponseDto {
 ```
 
 Use class-based DTOs. Add only validation that is required by the endpoint contract or a realistic input failure case.
+
+Every HTTP input received through `@Body`, `@Query`, or `@Param` uses a DTO class with `class-validator` decorators. Validate enum fields with `@IsEnum(...)`. Do not use a `type` or interface where runtime validation is required.
 
 Never return a TypeORM entity directly from an API endpoint.
 
@@ -201,6 +278,53 @@ Every feature defines its TypeORM entity in its entity file.
 Entities describe persistence, relations, and database-level constraints. They are not API response models.
 
 Keep entity-specific database details in the entity. Do not move business flows into entity methods or introduce rich domain-model patterns unless explicitly approved by the project architecture.
+
+### Relationships
+
+Inspect the existing schema before deciding relationship ownership or deletion behavior.
+
+For every relationship:
+
+- point each inverse callback to the correct relationship property;
+- keep foreign key column types, relation nullability, and TypeScript types consistent;
+- mark an optional relationship `nullable: true` and give it a nullable TypeScript type;
+- map an explicitly declared foreign key property to the same column as its relationship;
+- choose `onDelete` from the domain lifecycle; never copy `onDelete: 'CASCADE'` by default;
+- keep database `onDelete` behavior distinct from TypeORM's `cascade` option.
+
+**One-to-one:** define `@OneToOne` on both sides with matching inverse callbacks. Put `@JoinColumn` with an explicit column name on exactly one side: the entity whose table stores the foreign key.
+
+```ts
+// Inside Booking
+@OneToOne(() => Payment, (payment) => payment.booking, {
+  nullable: false,
+  onDelete: 'CASCADE',
+})
+@JoinColumn({ name: 'paymentId' })
+payment: Payment;
+
+// Inside Payment
+@OneToOne(() => Booking, (booking) => booking.payment)
+booking: Booking | null;
+```
+
+The foreign key requires each booking to reference a payment; it does not require each payment to have a booking. `nullable: false` on the inverse side would not enforce that.
+
+**Many-to-one and one-to-many:** put `@ManyToOne` on the entity that stores the foreign key and the matching `@OneToMany` collection on the referenced entity. Collections use plural names and array types. `@JoinColumn` belongs only on `@ManyToOne`, never on `@OneToMany`.
+
+```ts
+// Inside Booking
+@ManyToOne(() => Hotel, (hotel) => hotel.bookings, { nullable: false })
+hotel: Hotel;
+
+// Inside Hotel
+@OneToMany(() => Booking, (booking) => booking.hotel)
+bookings: Booking[];
+```
+
+**Many-to-many:** model the association as an explicit intermediate entity. Do not use `@ManyToMany` or a generated `@JoinTable`. The intermediate entity extends the project's base entity, declares each foreign key with `@Column`, and defines a `@ManyToOne` for each referenced entity; each referenced entity exposes the matching `@OneToMany` collection. Add `@JoinColumn` when the naming strategy would map the foreign key and relation to different columns. Create only the roles the current business logic needs.
+
+Use `@RelationId` only for an existing relationship property decorated with `@ManyToOne`, `@OneToOne`, or `@OneToMany`.
 
 Use enums for finite database and business states when appropriate, following the TypeScript Standard.
 
@@ -293,6 +417,8 @@ When a feature requires an entity change, relation, index, migration, or data tr
 2. follow the project's existing TypeORM migration convention;
 3. do not make unrelated schema improvements at the same time.
 
+Before creating a migration for an entity change, inspect how the project's TypeORM configuration resolves `synchronize`. When it is enabled, do not create a migration for that change. Do not toggle `synchronize` merely to generate a migration. When its effective value is unclear, trace how the configuration is loaded instead of assuming.
+
 Do not add indexes, constraints, cascade rules, eager relations, or database hooks for hypothetical future cases.
 
 When a current business invariant must survive concurrent requests, enforce it with the relevant database constraint. Use a local TypeORM transaction for writes that must succeed together; use its transaction manager for all participating writes. No generic transaction layer is needed. Do not hold a database transaction across a slow external API call by default.
@@ -309,5 +435,9 @@ Before completing a NestJS change, verify:
 6. Is the response DTO explicit rather than a returned entity?
 7. Did the change avoid new layers, dependencies, and speculative validation?
 8. Are expected failures handled or logged at a clear boundary?
+9. Do database-expressible filters run in the query, loading only the relations the result needs?
+10. Do all operations in a transaction use the same transactional manager?
+11. Do relationships have one owning side, correct inverse callbacks, and consistent column types, nullability, and deletion behavior?
+12. Was the `synchronize` setting checked before adding a migration?
 
 If a proposed change fails any of these checks, simplify it or request approval before proceeding.
