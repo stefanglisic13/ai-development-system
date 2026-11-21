@@ -2,11 +2,7 @@
 
 Status: Draft
 
-Revision: 1
-
-Approved revision: Not approved
-
-Approval reference:
+<!-- Status: Draft | Approved (<name>, YYYY-MM-DD). Never infer approval from filled sections. -->
 
 ## Overview
 
@@ -42,9 +38,9 @@ Approval reference:
 
 ## Testing Strategy
 
-<!-- Record the explicit testing policy for this project. Tests are not implied by default. -->
+<!-- The project's testing policy, decided during `/plan-project`: what is tested (for example nothing, critical business logic, every service), with which tool, and where tests live. Write `None` for a project without tests. Commands belong in `STACK.md`. -->
 
-Test creation requires an explicit request. Existing relevant checks may be run; record their commands and external requirements in `STACK.md`.
+TBD
 
 ## Deployment and Environments
 
@@ -54,6 +50,6 @@ Test creation requires an explicit request. Existing relevant checks may be run;
 
 <!-- List non-negotiable rules and link relevant ADRs. -->
 
-## Open Architecture Decisions
+## Decisions
 
-<!-- List unresolved decisions that require developer approval before implementation. -->
+<!-- One line per decision: `<decision> — Open | Confirmed (<name>, date) | Changed (<name>, date; was: <previous>) | Rejected (<name>, date)`. Never quote the conversation. -->

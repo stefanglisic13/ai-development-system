@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "ask": [
+      "Bash(npm install *)",
+      "Bash(npm i *)",
+      "Bash(npm add *)",
+      "Bash(yarn add *)",
+      "Bash(pnpm add *)",
+      "Bash(bun add *)",
+      "Bash(npx expo install *)"
+    ]
+  }
+}

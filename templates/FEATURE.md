@@ -1,69 +1,60 @@
 # Feature: <feature name>
 
-Approval: Draft
+Status: Draft
 
-Progress: Not started
-
-Revision: 1
-
-Requested by: Unknown
-
-Requested on: YYYY-MM-DD
+<!-- Status: Draft | Approved (<name>, YYYY-MM-DD). Approval covers the whole document. Delete sections that do not apply. -->
 
 ## Goal
 
-<!-- State the user-visible outcome this feature must achieve. -->
-
-## User Flow
-
-<!-- Describe the normal user flow in ordered steps. -->
+<!-- One or two lines: the user-visible outcome. -->
 
 ## Requirements
 
-<!-- List concrete behavior, permissions, limits, UI, API, and data requirements. -->
+<!-- Concrete behavior, permissions, limits, UI, API, and data requirements. Add the user flow as ordered steps only when it is not obvious. -->
 
 ## Non-Goals
 
-<!-- List behavior deliberately excluded from this feature. -->
+<!-- Behavior deliberately excluded. -->
 
-## Existing Context
+## Approach
 
-<!-- List relevant modules, architecture rules, ADRs, and existing patterns that this feature must follow. -->
+<!-- Short bullets from a developer's view: the technical approach, the existing patterns and ADRs it follows, and endpoint, DTO, entity, storage, or integration changes. -->
 
-## Approved Approach
+New dependencies: None
 
-<!-- Describe the selected implementation approach. Do not leave architectural choices implicit. -->
+Database changes: None
 
-## API and Data Changes
+New abstractions: None
 
-<!-- Record endpoint, DTO, entity, migration, storage, or integration changes. Write None when there are none. -->
+## Decisions
 
-## Expected Files to Change
-
-<!-- List existing files expected to change. -->
-
-## Expected New Files
-
-<!-- List every expected new file with its reason. Write None when there are none. -->
-
-## Dependencies
-
-<!-- List approved new dependencies. Write None when there are none. -->
+<!-- One line per decision: `<decision> — Open | Confirmed (<name>, date) | Changed (<name>, date; was: <previous>) | Rejected (<name>, date)`. Implementation does not start past a blocking `Open` decision. -->
 
 ## Acceptance Criteria
 
-<!-- List observable conditions that mean the feature is complete. -->
+<!-- Observable conditions that mean the feature is complete. -->
 
-## Open Questions
+## Phases
 
-<!-- List decisions that need developer approval. Implementation must not proceed past unresolved blocking questions. -->
+<!-- As many phases as the feature needs; a small feature has one. Status: Not started | In progress | Done. -->
 
-## Approval
+### Phase 1: <name>
 
-Approved revision: Not approved
+Status: Not started
 
-Approved by:
+Baseline: <!-- Written once when the phase starts: `HEAD <short-sha>; pre-existing changes: <files | none>`. -->
 
-Approved on:
+Files:
 
-Approval reference: <!-- Actual approval message; revise and re-approve material scope changes. -->
+- `<path>` — <change>
+- `<path>` (new) — <purpose>
+
+Done when: <!-- One observable check for this phase. -->
+
+## Verification
+
+<!-- One line per check: `Phase <n>: <command or manual check> — Pass | Fail: <reason> | Not run: <reason>`. Typecheck, lint, and build run for every phase; list any additional checks this feature needs. -->
+
+## Deviations
+
+<!-- One line per change outside the plan: `Phase <n>: <file or change> — <why it was needed>`. Small adjacent changes are recorded here after the fact. A new dependency, schema or migration change, API contract change, architecture or structure change, or different product behavior needs approval first. -->

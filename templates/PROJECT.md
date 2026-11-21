@@ -2,19 +2,7 @@
 
 Status: Draft
 
-Revision: 1
-
-Requested by: Unknown
-
-Requested on: YYYY-MM-DD
-
-Approved revision: Not approved
-
-Approved by: Not approved
-
-Approved on: Not approved
-
-Approval reference: <!-- Actual developer message/date; never infer approval from filled sections. -->
+<!-- Status: Draft | Approved (<name>, YYYY-MM-DD). Never infer approval from filled sections. -->
 
 ## Product Goal
 
@@ -44,6 +32,6 @@ Approval reference: <!-- Actual developer message/date; never infer approval fro
 
 <!-- List important business, legal, platform, performance, or delivery constraints. -->
 
-## Open Product Decisions
+## Decisions
 
-<!-- Record unresolved product decisions. Do not let implementation decide these silently. -->
+<!-- One line per decision: `<decision> — Open | Confirmed (<name>, date) | Changed (<name>, date; was: <previous>) | Rejected (<name>, date)`. Never quote the conversation. -->

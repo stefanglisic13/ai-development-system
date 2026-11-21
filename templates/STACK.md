@@ -2,11 +2,7 @@
 
 Status: Draft
 
-Revision: 1
-
-Approved revision: Not approved
-
-Approval reference:
+<!-- Status: Draft | Approved (<name>, YYYY-MM-DD). Never infer approval from filled sections. -->
 
 ## Application Map
 
@@ -16,7 +12,7 @@ TBD
 
 ## Local Commands
 
-<!-- Record the existing/approved package manager, version, lockfile, runtime version, and exact commands per app: install, dev, typecheck, build, lint, existing tests. Note autofix or external-service side effects. Mark unavailable commands as unavailable; never invent scripts. -->
+<!-- Package manager, lockfile, and runtime version, then one line per command for each app: install, dev, typecheck, lint, build, test. Typecheck, lint, and build run after every change. Note autofix or external-service side effects. Mark a missing command `Unavailable`; never invent scripts. -->
 
 ## Backend
 
@@ -48,8 +44,12 @@ Example:
 - Mobile styling: StyleSheet. Do not introduce NativeWind or styled-components.
 -->
 
+## Enforced by Tooling
+
+<!-- Rules checked by a tool instead of text, one line each: `<rule> — <tool and config file>`. Candidates: the prohibited alternatives above through ESLint `no-restricted-imports` (built in, no plugin); import boundaries between features and layers; file naming (needs a lint plugin, which is a dependency to approve); TypeScript `strict`; package installs through agent permissions. Do not restate an enforced rule elsewhere in `.ai/`. -->
+
 ## Dependency Policy
 
 New dependencies require developer approval. Before proposing one, verify that the approved stack or an existing dependency does not already solve the problem.
 
-Approval in a feature/implementation plan counts; do not request the same approval again. Framework defaults describe the proposed stack, not permission to install every listed library.
+Approval in an approved feature document counts; do not request the same approval again. Framework defaults describe the proposed stack, not permission to install every listed library.

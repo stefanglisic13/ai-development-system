@@ -1,392 +1,30 @@
 # Core Development Standard
 
-## 1. Primary Principle
+Write the simplest code that completely satisfies the current request. A developer must be able to follow a feature's whole execution flow by reading it top to bottom, without jumping between helpers, layers, and files. Every rule below serves that goal.
 
-Code should be simple, predictable, and easy to follow.
+Precedence: the developer's explicit request, approved project decisions in `.ai/`, the applicable framework standard, then this standard. Examples and unfilled templates are not decisions.
 
-Prefer a straightforward implementation over a more abstract or theoretically more scalable one.
+## Scope
 
-The developer must be able to understand the full execution flow without jumping unnecessarily between multiple files, abstractions, helpers, or layers.
+- Change only what the request needs. Refactors, renames, cleanups, and reorganizations of unrelated code make the diff harder to review and are separate tasks.
+- Report a problem you notice outside the scope; do not fix it.
+- A small adjacent change the request cannot work without (an import, a type, a call site, a config entry) is part of the request. Make it and name it in the summary.
+- Preserve changes already in the working tree. Never remove someone else's work to make a diff match a plan.
 
-Do not optimize for hypothetical future requirements.
+## Structure
 
-Do not introduce complexity unless the current requirement clearly justifies it.
+- Follow the project's existing structure and patterns, even where a generic best practice differs. A codebase is predictable only when equivalent things look the same; a better pattern in one feature makes the whole harder to read. If an existing pattern conflicts with the request, report the conflict instead of migrating silently.
+- Equivalent features have the same files with the same roles, named after the feature in kebab-case: `auth.service.ts`, not `authentication-user-login-processing.service.ts`. The folder is part of the name. Framework-required names such as `_layout.tsx` stay.
+- Create a file when the project structure expects it, the responsibility is genuinely separate, or the code has several real usages. Do not create one to make another file shorter: files and functions have no size limit, and one long linear function reads better than many small ones spread across the codebase.
+- In a monorepo, apply each framework standard only to its own app. `src/` is relative to that app's root.
 
-## Applying These Standards
+## Logic and Abstractions
 
-Use the developer's current explicit request, approved project decisions, applicable framework standard, and this core standard in that order. Runtime/tool permissions still apply. Examples and unfilled templates are not approved decisions.
-
-For an existing project, preserve compatible established patterns. If they conflict with an explicit requirement, report the conflict rather than silently migrating the project or ignoring the requirement. Routine implementation details within approved scope do not require another approval.
-
-In a monorepo, apply framework rules only to the application they describe. Resolve `src/` relative to that application's root. React web styling does not apply to React Native.
-
-## 2. Scope Discipline
-
-Always implement only what was explicitly requested.
-
-Do not:
-
-- refactor unrelated code;
-- clean up unrelated files;
-- rename unrelated variables;
-- reorganize folders;
-- introduce abstractions because they may be useful later;
-- add tests unless explicitly requested;
-- add extra validation for hypothetical cases;
-- introduce dependencies without approval.
-
-A feature implementation and a refactoring task are separate tasks.
-
-If something outside the requested scope appears problematic, mention it separately instead of changing it.
-
-## 3. Project Architecture
-
-Every project should have a predictable and consistent architecture.
-
-Equivalent feature folders should follow the same structure.
-
-When entering any feature or module folder, the expected files and responsibilities should be immediately recognizable.
-
-```text
-auth/
-├── auth.module.ts
-├── auth.controller.ts
-├── auth.service.ts
-├── auth.types.ts
-└── auth.dto.ts
-```
-
-Do not invent a different structure for individual features unless there is a concrete technical reason.
-
-Architecture consistency has higher priority than introducing a theoretically better pattern for a single feature.
-
-## 4. File Creation
-
-Prefer the established file structure of the project.
-
-Do not create a new file simply to make existing files smaller.
-
-Large files are acceptable when all code belongs to the same context and the execution flow remains understandable.
-
-A new file is justified when:
-
-- the project architecture explicitly expects that file;
-- the responsibility is genuinely separate;
-- the implementation is sufficiently large or complex to obscure the main flow;
-- a reusable concern has multiple real usages.
-
-Do not split logic only because a file has many lines.
-
-Functions or helpers that grow to several hundred lines and represent a distinct concern may be extracted.
-
-File count should remain predictable across equivalent features.
-
-## 5. Locality of Logic
-
-Keep feature-specific logic close to where it is used.
-
-Prefer:
-
-```text
-service
-  → validation
-  → calculation
-  → database operation
-  → result
-```
-
-Over:
-
-```text
-service
-  → generic helper
-  → abstraction
-  → factory
-  → utility
-  → mapper
-  → repository
-  → result
-```
-
-When reading a backend service, the main business flow should be visible directly in that service.
-
-Avoid forcing the developer to open several files simply to understand how a value is calculated.
-
-## 6. Helpers and Utilities
-
-Create shared helpers only when there is a real reuse case.
-
-Good shared helper examples include:
-
-- date formatting;
-- currency formatting;
-- common string formatting;
-- reusable parsing;
-- genuinely shared transformations.
-
-Do not extract a calculation into a helper merely because it can technically be extracted.
-
-If logic belongs specifically to one feature and is used in one place, keep it local to that feature.
-
-Prefer readability of the complete execution flow over artificial reduction of file size.
-
-## 7. Abstractions
-
-Use abstractions conservatively.
-
-Avoid introducing:
-
-- base classes;
-- generic repositories;
-- generic services;
-- factories;
-- adapters;
-- wrappers;
-- strategy patterns;
-- unnecessary interfaces;
-- utility layers.
-
-Only introduce them when there is an existing architectural requirement or a concrete current use case.
-
-Do not create abstractions for hypothetical future reuse.
-
-### Backend
-
-Backend code should favor:
-
-- linear execution;
-- local business logic;
-- explicit operations;
-- easy traceability.
-
-Global concerns are appropriate for:
-
-- authentication guards;
-- authorization guards;
-- global middleware;
-- global interceptors;
-- logging infrastructure;
-- shared infrastructure concerns.
-
-Feature-specific business logic should usually remain within the feature.
-
-Avoid excessive centralization because it makes the execution flow harder to trace.
-
-### Frontend
-
-Frontend code should reuse presentation and behavior more aggressively when React naturally benefits from it.
-
-Reusable concepts may include:
-
-- page templates;
-- section templates;
-- layouts;
-- shared UI components;
-- reusable hooks;
-- wrappers;
-- common form components.
-
-Feature code should contain primarily the feature-specific logic and configuration.
-
-Reuse should simplify the UI implementation, not make the component hierarchy difficult to understand.
-
-## 8. Defensive Programming
-
-Handle realistic failure cases.
-
-Do not implement defensive checks for highly unlikely or impossible states unless explicitly approved.
-
-Before adding unusual guards, ask whether that scenario is expected to occur.
-
-Prefer:
-
-```ts
-if (!user) {
-  throw new NotFoundException('User not found');
-}
-```
-
-When the case is realistic.
-
-Avoid chains of defensive checks created only because a value could theoretically be malformed despite the application contract guaranteeing otherwise.
-
-Do not silently add fallback behavior for impossible states.
-
-Validation at untrusted input boundaries, authorization, and integrity checks required by the feature are real requirements. TypeScript types alone do not validate external input. Do not remove these checks in the name of simplicity.
-
-## 9. Error Handling
-
-Handle errors close to the operation where they occur.
-
-Prefer explicit `try/catch` blocks around meaningful processing boundaries when knowing where the operation failed is important.
-
-Avoid unnecessarily propagating errors through many layers before handling them.
-
-Error handling should make the failure location easy to identify.
-
-A developer reading the relevant service should be able to understand:
-
-- what operation can fail;
-- where it is handled;
-- what error is returned.
-
-Do not create custom error classes unless they provide a concrete benefit.
-
-Use existing framework errors where sufficient.
-
-Catch an error when the boundary can add useful context, translate it, recover, or compensate. Preserve known error status and original cause; do not turn all failures into a generic success or `500`. Use one logging owner for each failure to avoid logging it at every layer.
-
-## 10. Dependencies
-
-Never install or introduce a new dependency without explicit developer approval.
-
-Before suggesting a dependency:
-
-1. Check whether an existing dependency already solves the problem.
-2. Check whether the implementation can reasonably be done without an additional dependency.
-3. Explain why the dependency is beneficial.
-4. Wait for approval before installing it.
-
-Do not introduce competing libraries for functionality already covered by the existing stack.
-
-Approval recorded in the current conversation or an approved plan counts as approval; do not ask again for the same dependency. Install only the approved scope using the existing package manager and lockfile.
-
-## 11. TypeScript
-
-TypeScript should improve clarity without introducing unnecessary complexity.
-
-Prefer explicit, simple types.
-
-Business entities, API responses, important request payloads, and domain models should always be typed.
-
-```ts
-type User = {
-  id: string;
-  email: string;
-  status: UserStatus;
-};
-```
-
-Enums are acceptable and encouraged where they clearly represent a finite domain.
-
-Optional properties should only be optional when they are genuinely optional in the business model or API contract.
-
-Do not mark fields optional simply to make TypeScript errors disappear.
-
-Avoid excessive:
-
-- generics;
-- conditional types;
-- mapped types;
-- type-level abstractions.
-
-Only use them when they solve a concrete problem.
-
-`any` should not be the default, but it is acceptable for isolated cases where the value genuinely cannot be reasonably typed.
-
-Never leave important entities or API responses as `any`.
-
-Prefer understandable TypeScript over sophisticated TypeScript.
-
-## 12. Comments
-
-Code should primarily be self-explanatory.
-
-Comments should explain business meaning rather than restating implementation details.
-
-Good:
-
-```ts
-// Calculates how many seats remain available for the selected shift.
-```
-
-Bad:
-
-```ts
-// Subtract reserved seats from total seats.
-const availableSeats = totalSeats - reservedSeats;
-```
-
-Use comments when they help explain:
-
-- business rules;
-- non-obvious calculations;
-- product-specific behavior;
-- why an unusual implementation exists.
-
-Avoid comments that merely narrate the code.
-
-## 13. Tests
-
-Do not add tests unless they are explicitly requested.
-
-Tests are not an automatic part of feature implementation.
-
-Do not create:
-
-- unit tests;
-- integration tests;
-- fixtures;
-- test helpers;
-- mocks.
-
-Only create them when the task specifically includes testing.
-
-If a change appears risky enough that testing should be considered, mention it separately rather than automatically implementing tests.
-
-This restriction concerns creating or changing tests, not verification. Run relevant existing typecheck/build/lint or tests when appropriate and available. Inspect commands before running them; avoid unrelated autofixes, external-service calls, or data mutations. Report failed and unavailable checks honestly.
-
-## 14. Naming
-
-Use kebab-case for file names where applicable.
-
-Files inside a feature should use the feature name as their base.
-
-Framework-required filenames such as Expo Router's `_layout.tsx` and `index.tsx` keep their required names.
-
-```text
-auth/
-├── auth.module.ts
-├── auth.service.ts
-├── auth.controller.ts
-└── auth.types.ts
-```
-
-Prefer:
-
-```text
-auth.service.ts
-```
-
-Over:
-
-```text
-authentication-user-login-processing.service.ts
-```
-
-File names should communicate their role without trying to describe every internal responsibility.
-
-Folder context is part of the file name's meaning.
-
-## 15. Function and File Size
-
-There is no arbitrary maximum size for functions or files.
-
-Do not split code solely because:
-
-- a function is long;
-- a file has many lines;
-- another style guide recommends smaller units.
-
-Split code when doing so genuinely improves readability or separates an independent responsibility.
-
-A larger linear function can be preferable to multiple small functions that force the reader to jump around the codebase.
-
-Readability of the complete flow is more important than minimizing line count.
-
-## 16. Implementation Style
-
-Prefer linear code.
+- Keep feature logic inside the feature, in the order it runs: what comes in, what is checked, what is calculated, what is stored, what is returned. Nobody should open several files to learn how one value is computed.
+- Extract a shared helper only for real reuse, such as date or currency formatting and shared parsing. Logic used in one place stays in that place.
+- Add a base class, generic service or repository, factory, adapter, wrapper, strategy, or extra layer only when the architecture already requires it or a concrete current use exists. An abstraction built for a hypothetical future costs readability today and usually guesses that future wrong.
+- Backend: linear and explicit. Global mechanisms are for cross-cutting concerns only (authentication and authorization guards, middleware, interceptors, logging).
+- Frontend: reuse presentation more freely (layouts, shared UI, hooks, form components) when it simplifies the component tree. Feature code holds the feature-specific logic and configuration.
 
 ```ts
 async createBooking(input: CreateBookingDto) {
@@ -396,97 +34,48 @@ async createBooking(input: CreateBookingDto) {
     throw new NotFoundException('Hotel not found');
   }
 
-  const availableRooms = hotel.capacity - hotel.reservedRooms;
-
-  if (availableRooms < input.rooms) {
+  if (hotel.capacity - hotel.reservedRooms < input.rooms) {
     throw new BadRequestException('Not enough available rooms');
   }
 
-  const booking = this.bookingRepository.create({
+  const booking = await this.bookingRepository.save({
     ...input,
     totalPrice: input.rooms * hotel.pricePerRoom,
   });
 
-  const savedBooking = await this.bookingRepository.save(booking);
-
-  return {
-    id: savedBooking.id,
-    totalPrice: savedBooking.totalPrice,
-  } satisfies BookingResponseDto;
+  return { id: booking.id, totalPrice: booking.totalPrice } satisfies BookingResponseDto;
 }
 ```
 
-Avoid unnecessarily transforming simple flows into multiple abstractions.
+## Failures and Validation
 
-The main implementation should make it obvious:
+- Handle failures that can realistically happen. A guard or fallback for a state the application contract rules out hides bugs and buries the real flow. If you are unsure whether a case can occur, ask.
+- Always keep validation of untrusted input at the boundary, authorization, and the integrity checks the feature requires. TypeScript types do not validate external data.
+- Handle an error where the code can add context, translate it, recover, or compensate, close to the operation that failed, so the reader sees what can fail and what is returned. Preserve the known status and the original cause; never turn a failure into a success or a blanket `500`. One layer logs each failure.
+- Use the framework's errors. Add a custom error class only for a concrete benefit.
 
-- what comes in;
-- what is checked;
-- what is calculated;
-- what is stored or changed;
-- what is returned.
+## TypeScript
 
-## 17. Decision Authority
+- Prefer explicit, simple types. Entities, API responses, request payloads, and domain models are always typed. Use enums for finite domains.
+- A property is optional only when it is optional in the business model or API contract, never to silence a compiler error.
+- Use generics, conditional types, and mapped types only for a concrete problem. `any` is acceptable for an isolated value that cannot reasonably be typed, never for entities or API responses.
 
-Do not make architectural or product decisions independently.
+## Comments
 
-When an implementation requires a decision that is not already defined:
+Comment the business meaning, a non-obvious calculation, or why an unusual implementation exists. Do not narrate what the code already says.
 
-1. Identify the decision.
-2. Explain why it is needed.
-3. Present reasonable options.
-4. Describe relevant tradeoffs.
-5. Wait for developer approval.
+## Dependencies
 
-Do not silently select a solution.
+A new dependency needs the developer's approval, because each one is a long-term maintenance and security cost. First check whether an existing dependency or a reasonable amount of plain code solves the problem, then explain the benefit and wait. Approval already given in the conversation or in an approved feature document counts; do not ask twice. Install with the project's package manager and update its lockfile.
 
-This especially applies to:
+## Tests and Verification
 
-- new dependencies;
-- new architectural layers;
-- changes to folder structure;
-- new global abstractions;
-- new infrastructure;
-- unusual defensive handling;
-- database schema changes outside the requested scope.
+- Tests follow the project's testing policy in `.ai/ARCHITECTURE.md`. Where no policy is recorded, write tests only when requested or planned, and say so when a change is risky enough to deserve one.
+- Verification is part of every change. Run the affected app's typecheck, lint, and build from `.ai/STACK.md`, plus existing tests that cover the change. Fix the failures you caused. Report failures that existed before and checks that could not run. Never state that a check passed when it was not run.
+- Read a command before running it. Avoid commands that autofix unrelated files, call external services, or change data.
 
-## 18. Existing Code Has Priority
+## Decisions
 
-Before implementing a feature, inspect similar existing features.
+Product and architecture decisions belong to the developer. When the work needs one that has not been made (a new dependency, layer, global abstraction, folder structure, infrastructure choice, schema change outside the scope, or unusual defensive behavior), give 2–3 options with short tradeoffs and wait. Routine implementation details inside the approved scope need no approval.
 
-Follow the established project pattern unless explicitly instructed otherwise.
-
-Do not replace existing architectural conventions with generic industry best practices.
-
-Consistency within the project has priority.
-
-If the existing architecture conflicts with the requested feature, explain the conflict instead of silently redesigning the architecture.
-
-## 19. Overengineering Check
-
-Before adding something, ask:
-
-1. Is this required by the task?
-2. Is this required by the existing architecture?
-3. Is there a real current use case?
-4. Does this make the execution flow easier to understand?
-5. Would the feature still work correctly without it?
-
-If the answer to the first three questions is no, do not add it.
-
-Prefer the smallest implementation that completely satisfies the current requirement.
-
-## 20. Final Implementation Rule
-
-When uncertain between:
-
-- a more sophisticated solution;
-- a simpler solution that satisfies the requirement;
-
-Choose the simpler solution.
-
-When uncertain whether something should be added, do not add it.
-
-When a decision belongs to the developer, ask or propose rather than deciding independently.
-
-Before editing, inspect existing changes and preserve them. Review both scope and correctness before completion, including staged, unstaged, and relevant untracked files. Never remove another contributor's changes to make a diff match a plan.
+When unsure between a sophisticated and a simple solution, choose the simple one. When unsure whether to add something, do not add it.

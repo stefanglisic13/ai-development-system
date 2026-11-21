@@ -5,32 +5,28 @@ argument-hint: [notes]
 
 # Plan Project
 
-Developer input: $ARGUMENTS
+Create or update the project documentation in `.ai/`. Do not write application code, install dependencies, or change source files.
 
-Create or update the project planning documentation. Do not write application code, install dependencies, or make architecture changes in source files.
-
-First follow `.claude/rules/01-project-context.md` to load the canonical standards, inspect the current repository, and read existing `.ai/` documentation. Reuse decisions already made in the conversation. Then determine which of these are missing or unresolved:
+Read the installed standards, the repository, and the existing `.ai/` documents. Reuse decisions already made in the conversation. Then find what is missing or undecided:
 
 1. product goal, users, scope, and non-goals;
 2. applications and system boundaries;
-3. approved stack and dependency choices;
+3. stack and dependency choices;
 4. authentication, authorization, data, storage, and external services;
-5. canonical folder and file structures;
-6. error handling, logging, testing, deployment, and environment strategy.
+5. folder and file structure;
+6. error handling, logging, deployment, and environments;
+7. testing policy: what is tested, with which tool, and by which command, or explicitly `None`;
+8. check commands per app: typecheck, lint, build, and existing tests.
 
-For every material decision that is not known, present 2–3 reasonable options with concise tradeoffs and wait for developer approval. Do not choose the architecture independently.
+For each undecided material choice, present 2–3 options with short tradeoffs and wait. Do not choose the architecture yourself.
 
-Create or update reviewable drafts of only these project documents as needed, recording unresolved decisions as `TBD`:
+For each convention a tool can check (prohibited alternative libraries, import boundaries between features and layers, file naming, TypeScript strictness), propose enforcing it with the project's linter or compiler configuration instead of documenting it as text. Record the outcome under `Enforced by Tooling` in `STACK.md`. Applying the configuration is a separate implementation task, and a lint plugin is a dependency that needs approval.
 
-- `.ai/PROJECT.md`
-- `.ai/ARCHITECTURE.md`
-- `.ai/STRUCTURE.md`
-- `.ai/STACK.md`
-- `.ai/CURRENT.md`
-- `.ai/decisions/ADR-<number>-<title>.md` for accepted architecture decisions
+Write drafts of only the documents that need a change, from `.ai/templates/`, marking undecided items `TBD`:
 
-Use `.ai/templates/`. Never treat example folders or packages as approved selections. Record each app's root path and framework in `STACK.md`, including monorepo boundaries, and record verified package-manager and validation commands. Remove irrelevant example sections.
+- `.ai/PROJECT.md`, `.ai/ARCHITECTURE.md`, `.ai/STRUCTURE.md`, `.ai/STACK.md`, `.ai/CURRENT.md`;
+- `.ai/decisions/ADR-<number>-<title>.md` for an accepted architecture decision that needs its alternatives recorded.
 
-For project and ADR attribution fields, resolve the name under `.claude/rules/01-project-context.md`'s Documentation Identity rule. A Git-derived name identifies the request record only; it never substitutes for explicit approval.
+Record each app's root path and framework in `STACK.md`, and only check commands you verified exist. Delete template sections and example folders that do not apply; an example is never an approved choice.
 
-Summarize scope, stack, structure, and blocking questions. Mark documents approved only after explicit developer approval of the presented revision. Do not bootstrap application code during this command.
+Finish with a few bullets: scope, stack, structure, and `Open` decisions. Set `Status: Approved (<name>, YYYY-MM-DD)` on a document only after the developer approves it.

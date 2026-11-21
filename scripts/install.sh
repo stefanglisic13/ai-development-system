@@ -17,10 +17,12 @@ Environment:
 
 Examples:
   curl -fsSL https://raw.githubusercontent.com/stefanglisic13/ai-development-system/main/scripts/install.sh \
-    | bash -s -- --typescript --react --claude
+    | bash -s -- --typescript --react
 
   AI_DEV_SYSTEM_REPO=git@github.com:stefanglisic13/ai-development-system.git \
-    bash install.sh ../my-app --typescript --nestjs --cursor --claude
+    bash install.sh ../my-app --typescript --nestjs
+  curl -fsSL https://raw.githubusercontent.com/stefanglisic13/ai-development-system/main/scripts/install.sh \
+    | bash -s -- --update
 EOF
 }
 

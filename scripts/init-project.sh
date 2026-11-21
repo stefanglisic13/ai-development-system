@@ -13,19 +13,22 @@ Options:
   --react-native     Include React Native/Expo and shared React principles
                      (requires --typescript).
   --nestjs           Include NestJS (requires --typescript).
-  --cursor           Install the Cursor adapter (.cursor/).
-  --claude           Install the Claude Code adapter (.claude/).
+  --update           Upgrade system-owned files to this version.
   -h, --help         Show this help.
 
-Installs .ai/ context, templates, full standards, and the selected agent
-adapters. Without --cursor or --claude, the Cursor adapter is installed.
-Existing files are preserved. Differing files are reported, not upgraded.
-No packages are installed and no application code is generated.
+Installs .ai/ context, templates, framework standards, and the Claude Code
+rules, commands, and settings in .claude/.
+
+Without --update, existing files are preserved and differing files reported.
+With --update, system-owned files (rules, commands, .ai/standards/,
+.ai/templates/) are overwritten; the installed stack is detected, so no other
+option is needed. Project-owned files (.ai/*.md, features, decisions,
+.claude/settings.json) are never overwritten. No packages are installed and
+no code is generated.
 
 Example:
   ./scripts/init-project.sh ../my-app --typescript --react --nestjs
-  ./scripts/init-project.sh ../my-app --typescript --react --claude
-  ./scripts/init-project.sh ../my-app --typescript --nestjs --cursor --claude
+  ./scripts/init-project.sh ../my-app --update
 EOF
 }
 
@@ -52,8 +55,7 @@ use_typescript=false
 use_react=false
 use_react_native=false
 use_nestjs=false
-use_cursor=false
-use_claude=false
+update=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -61,22 +63,12 @@ while [[ $# -gt 0 ]]; do
     --react) use_react=true ;;
     --react-native) use_react_native=true ;;
     --nestjs) use_nestjs=true ;;
-    --cursor) use_cursor=true ;;
-    --claude) use_claude=true ;;
+    --update) update=true ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown option: $1" >&2; usage; exit 1 ;;
   esac
   shift
 done
-
-if { [[ "$use_react" == true ]] || [[ "$use_react_native" == true ]] || [[ "$use_nestjs" == true ]]; } && [[ "$use_typescript" != true ]]; then
-  echo "React, React Native, and NestJS standards require --typescript." >&2
-  exit 1
-fi
-
-if [[ "$use_cursor" != true && "$use_claude" != true ]]; then
-  use_cursor=true
-fi
 
 if [[ ! -d "$target_input" ]]; then
   echo "Project directory does not exist: $target_input" >&2
@@ -91,65 +83,76 @@ if [[ "$target_dir" == "/" || "$target_dir" == "$HOME" || "$target_dir" == "$sys
   exit 1
 fi
 
+# With --update, add whatever is already installed to the requested options.
+if [[ "$update" == true ]]; then
+  rules_dir="$target_dir/.claude/rules"
+  if [[ ! -f "$rules_dir/01-project-context.md" ]]; then
+    echo "No installation found to update in: $target_dir" >&2
+    exit 1
+  fi
+  if [[ -f "$rules_dir/10-typescript.md" ]]; then use_typescript=true; fi
+  if [[ -f "$rules_dir/20-react.md" ]]; then use_react=true; fi
+  if [[ -f "$rules_dir/21-react-native.md" ]]; then use_react_native=true; fi
+  if [[ -f "$rules_dir/30-nestjs.md" ]]; then use_nestjs=true; fi
+fi
+
+if { [[ "$use_react" == true ]] || [[ "$use_react_native" == true ]] || [[ "$use_nestjs" == true ]]; } && [[ "$use_typescript" != true ]]; then
+  echo "React, React Native, and NestJS standards require --typescript." >&2
+  exit 1
+fi
+
 sources=()
 destinations=()
+owners=()
 
+# queue_copy <source in this repo> <destination in the project> <system|project>
 queue_copy() {
   sources+=("$system_dir/$1")
   destinations+=("$target_dir/$2")
+  owners+=("$3")
 }
 
 for template in PROJECT ARCHITECTURE STRUCTURE STACK CURRENT; do
-  queue_copy "templates/$template.md" ".ai/$template.md"
+  queue_copy "templates/$template.md" ".ai/$template.md" project
 done
 
 for template_file in "$system_dir"/templates/*.md; do
-  queue_copy "templates/$(basename -- "$template_file")" ".ai/templates/$(basename -- "$template_file")"
+  queue_copy "templates/$(basename -- "$template_file")" ".ai/templates/$(basename -- "$template_file")" system
 done
 
-queue_copy "core/core-development.md" ".ai/standards/core/core-development.md"
-
 if [[ "$use_typescript" == true ]]; then
-  queue_copy "frameworks/typescript.md" ".ai/standards/frameworks/typescript.md"
+  queue_copy "frameworks/typescript.md" ".ai/standards/frameworks/typescript.md" system
 fi
 if [[ "$use_react" == true || "$use_react_native" == true ]]; then
-  queue_copy "frameworks/react.md" ".ai/standards/frameworks/react.md"
+  queue_copy "frameworks/react.md" ".ai/standards/frameworks/react.md" system
 fi
 if [[ "$use_react_native" == true ]]; then
-  queue_copy "frameworks/react-native.md" ".ai/standards/frameworks/react-native.md"
+  queue_copy "frameworks/react-native.md" ".ai/standards/frameworks/react-native.md" system
 fi
 if [[ "$use_nestjs" == true ]]; then
-  queue_copy "frameworks/nestjs.md" ".ai/standards/frameworks/nestjs.md"
+  queue_copy "frameworks/nestjs.md" ".ai/standards/frameworks/nestjs.md" system
 fi
 
-# Queue one agent adapter: <source dir> <destination dir> <rule extension>.
-queue_adapter() {
-  local source="$1" destination="$2" extension="$3"
-  queue_copy "$source/rules/00-core.$extension" "$destination/rules/00-core.$extension"
-  queue_copy "$source/rules/01-project-context.$extension" "$destination/rules/01-project-context.$extension"
-  if [[ "$use_typescript" == true ]]; then
-    queue_copy "$source/rules/10-typescript.$extension" "$destination/rules/10-typescript.$extension"
-  fi
-  if [[ "$use_react" == true ]]; then
-    queue_copy "$source/rules/20-react.$extension" "$destination/rules/20-react.$extension"
-  fi
-  if [[ "$use_react_native" == true ]]; then
-    queue_copy "$source/rules/21-react-native.$extension" "$destination/rules/21-react-native.$extension"
-  fi
-  if [[ "$use_nestjs" == true ]]; then
-    queue_copy "$source/rules/30-nestjs.$extension" "$destination/rules/30-nestjs.$extension"
-  fi
-  for command_file in "$system_dir/$source"/commands/*.md; do
-    queue_copy "$source/commands/$(basename -- "$command_file")" "$destination/commands/$(basename -- "$command_file")"
-  done
-}
-
-if [[ "$use_cursor" == true ]]; then
-  queue_adapter "cursor" ".cursor" "mdc"
+# The core standard is installed as the always-loaded rule 00-core.
+queue_copy "core/core-development.md" ".claude/rules/00-core.md" system
+queue_copy "claude/rules/01-project-context.md" ".claude/rules/01-project-context.md" system
+if [[ "$use_typescript" == true ]]; then
+  queue_copy "claude/rules/10-typescript.md" ".claude/rules/10-typescript.md" system
 fi
-if [[ "$use_claude" == true ]]; then
-  queue_adapter "claude" ".claude" "md"
+if [[ "$use_react" == true ]]; then
+  queue_copy "claude/rules/20-react.md" ".claude/rules/20-react.md" system
 fi
+if [[ "$use_react_native" == true ]]; then
+  queue_copy "claude/rules/21-react-native.md" ".claude/rules/21-react-native.md" system
+fi
+if [[ "$use_nestjs" == true ]]; then
+  queue_copy "claude/rules/30-nestjs.md" ".claude/rules/30-nestjs.md" system
+fi
+for command_file in "$system_dir"/claude/commands/*.md; do
+  queue_copy "claude/commands/$(basename -- "$command_file")" ".claude/commands/$(basename -- "$command_file")" system
+done
+# Asks for confirmation before package installs. Project-owned once created.
+queue_copy "claude/settings.json" ".claude/settings.json" project
 
 # Preflight every destination before making any changes.
 check_directory_path() {
@@ -187,6 +190,11 @@ for ((i = 0; i < ${#sources[@]}; i++)); do
   if [[ -f "$target_file" ]]; then
     if cmp -s "$source_file" "$target_file"; then
       echo "Unchanged: ${target_file#$target_dir/}"
+    elif [[ "$update" == true && "${owners[$i]}" == system ]]; then
+      cp "$source_file" "$target_file"
+      echo "Updated: ${target_file#$target_dir/}"
+    elif [[ "${owners[$i]}" == project ]]; then
+      echo "Project-owned, kept: ${target_file#$target_dir/}"
     else
       echo "Preserved differing file: ${target_file#$target_dir/}"
       different_count=$((different_count + 1))
@@ -199,14 +207,14 @@ for ((i = 0; i < ${#sources[@]}; i++)); do
 done
 
 echo
+if [[ "$update" == true ]]; then
+  echo "AI development system updated in: $target_dir"
+  echo "Review the diff. Project documents were not changed; align them with .ai/templates/ where needed."
+  exit 0
+fi
 echo "AI development system initialized in: $target_dir"
 if [[ "$different_count" -gt 0 ]]; then
-  echo "$different_count existing files differ; this run did not update them."
-  echo "Review differences before relying on new rules. See this system's README update instructions."
+  echo "$different_count system files differ from this version."
+  echo "Rerun with --update to upgrade them; project documents are never overwritten."
 fi
-if [[ "$use_cursor" == true ]]; then
-  echo "Next (Cursor): open the project in Cursor and run /plan-project."
-fi
-if [[ "$use_claude" == true ]]; then
-  echo "Next (Claude Code): run claude in the project root and run /plan-project."
-fi
+echo "Next: run claude in the project root and run /plan-project."

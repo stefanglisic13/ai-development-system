@@ -4,11 +4,11 @@
 
 <!-- State the current feature and current implementation phase. -->
 
-<!-- Link FEATURE.md and PLAN.md for each active item. Keep concurrent items separate and update only the item you worked on. Details and check results belong in the plan. -->
+<!-- One line per item: `<feature> — phase <n> — <status>` with a link to its FEATURE.md. Update only the item you worked on. Details belong in the feature document. -->
 
 ## Completed
 
-<!-- List recently completed feature-level work. Keep this concise. -->
+<!-- One line per recently completed feature. -->
 
 ## Next
 

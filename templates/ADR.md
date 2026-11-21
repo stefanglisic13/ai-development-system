@@ -2,25 +2,15 @@
 
 Status: Proposed
 
-Date: YYYY-MM-DD
-
-Requested by: Unknown
-
-Requested on: YYYY-MM-DD
-
-Approved by: Not approved
-
-Approved on: Not approved
-
-Approval reference: <!-- Record explicit acceptance before marking Accepted. -->
+<!-- Status: Proposed | Accepted (<name>, YYYY-MM-DD) | Superseded by ADR-<number>. Keep each section to a few bullets. -->
 
 ## Context
 
-<!-- What decision is needed and why? Include constraints and relevant facts. -->
+<!-- Bullets: the problem and constraints that forced the decision. -->
 
 ## Decision
 
-<!-- State the approved decision clearly. -->
+<!-- One or two lines. -->
 
 ## Implementation Boundary
 
@@ -28,11 +18,11 @@ Approval reference: <!-- Record explicit acceptance before marking Accepted. -->
 
 ## Consequences
 
-<!-- Describe practical tradeoffs, limitations, and follow-up work. -->
+<!-- Bullets: tradeoffs and follow-up work. -->
 
 ## Rejected Alternatives
 
-<!-- List reasonable alternatives and why they were not selected. -->
+<!-- `<alternative> — <reason in a few words>` -->
 
 ## Related Documents
 

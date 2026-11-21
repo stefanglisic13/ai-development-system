@@ -1,39 +1,28 @@
 ---
-description: Implement one phase of an approved feature plan.
-argument-hint: <feature-name> phase-<number>
+description: Implement one phase of an approved feature document.
+argument-hint: <feature-name> [phase-<number>]
 ---
 
 # Implement Feature
 
-Feature and phase: $ARGUMENTS
+Implement the phase named with this command. If no phase is named, implement the next phase that is not done.
 
-Implement only the requested phase of an approved feature plan.
+Read the project context required by the project-context rule, `.ai/features/<feature-name>/FEATURE.md`, and the existing code of similar features.
 
-First follow `.claude/rules/01-project-context.md` to load the applicable standards. Before coding, read:
+Before editing:
 
-- `.ai/PROJECT.md`
-- `.ai/ARCHITECTURE.md`
-- `.ai/STRUCTURE.md`
-- `.ai/STACK.md`
-- relevant ADRs
-- `.ai/features/<feature-name>/FEATURE.md`
-- `.ai/features/<feature-name>/PLAN.md`
-- existing similar code.
+- Confirm the document says `Status: Approved`. If it does not, or the phase is ambiguous, say what is missing and stop. Do not ask again for approval already given in this conversation.
+- Inspect `git status --short` and the staged and unstaged diffs. Record the phase baseline in the document once and do not overwrite it when resuming.
 
-Verify approval records for the current feature and plan revisions. `In Progress` does not revoke approval. If either approval is absent or stale, or the requested phase is ambiguous, explain what is missing before coding. Do not request approval already recorded in the current conversation.
+Implement under the rules in the project-context rule, Implementing an Approved Feature: follow the plan, make small adjacent deviations and record them, stop for the listed material changes.
 
-Inspect `git status --short`, staged and unstaged diffs, and relevant untracked files before editing. Record a separate review baseline for the requested phase in the plan (HEAD and pre-existing changes); without Git, record the starting files. Preserve earlier phase baselines when starting the next phase, and reuse the current phase baseline when resuming it. Preserve others' work and distinguish it from this phase.
+When the code is written:
 
-During implementation:
+1. Run typecheck, lint, and build for the affected app with the commands in `.ai/STACK.md`, plus existing tests that cover the change and the checks listed in the document.
+2. Fix failures caused by this phase and run the checks again. Report failures that existed before the phase; do not fix them here.
+3. Review your own diff against the phase's completion check and the feature's acceptance criteria. A build that compiles is not acceptance.
+4. Update the phase status, `Verification`, and `Deviations` in the document, and the item in `.ai/CURRENT.md`.
 
-- implement only the requested phase;
-- follow the approved files, new files, architecture, stack, and patterns;
-- do not redesign the solution;
-- install only explicitly approved dependencies using the approved package manager; update the planned lockfile together with the manifest;
-- do not add tests, refactors, abstractions, validations, or fallback behavior that are not in the approved plan;
-- keep business flow clear and local;
-- run only relevant existing validation commands when appropriate and available.
+Mark the phase `Done` only when its checks pass. If a check cannot run, record `Not run` with the reason and leave the phase `In progress`.
 
-If implementation requires any deviation, stop before editing beyond the approved scope. Report why, the smallest required change, and affected files or decisions. Wait for approval.
-
-At the end, review your changes for scope and correctness against phase acceptance criteria, including relevant untracked files. Summarize changed files, actual checks/results, and remaining work. Update phase progress and verification in `PLAN.md` and the active item in `.ai/CURRENT.md`; preserve other active work. Mark a phase complete only when its completion criteria are met, and never equate successful compilation alone with feature acceptance. Do not commit, push, deploy, or run database migrations unless requested.
+Finish with a short summary: changed files, check results, deviations, remaining work. Do not commit, push, deploy, or run database migrations unless asked.

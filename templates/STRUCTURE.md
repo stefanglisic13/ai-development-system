@@ -2,11 +2,7 @@
 
 Status: Draft
 
-Revision: 1
-
-Approved revision: Not approved
-
-Approval reference:
+<!-- Status: Draft | Approved (<name>, YYYY-MM-DD). Never infer approval from filled sections. -->
 
 ## Purpose
 
@@ -19,7 +15,7 @@ This document is the source of truth for repository structure. New code must fol
 ```text
 project/
 ├── .ai/
-├── .cursor/
+├── .claude/
 └── <approved application locations>
 ```
 

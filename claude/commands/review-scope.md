@@ -1,50 +1,40 @@
 ---
-description: Review a feature phase diff for scope and correctness without modifying files.
+description: Independently review a feature phase for correctness and scope without modifying files.
 argument-hint: <feature-name> [phase-<number>]
+context: fork
 ---
 
 # Review Scope
 
-Feature and phase: $ARGUMENTS
+Review the feature phase named with this command for correctness and scope. Do not modify source files, documentation, dependencies, or git state.
 
-Review both scope and correctness of the requested feature/phase. Do not modify source files, documentation, dependencies, or git state. Load applicable canonical standards through `.claude/rules/01-project-context.md` first.
+This review runs in a forked context without the implementation conversation. Judge the diff and the document, not the implementer's explanation.
 
 Read:
 
-- `.ai/features/<feature-name>/FEATURE.md`
-- `.ai/features/<feature-name>/PLAN.md`
-- relevant `.ai/` project documentation and ADRs;
-- the plan's baseline and phase, `git status --short`, staged and unstaged diffs, and relevant untracked file contents;
-- changes since the recorded baseline if phase work has already been committed.
+- the project context required by the project-context rule;
+- `.ai/features/<feature-name>/FEATURE.md`, including the phase baseline, `Verification`, and `Deviations`;
+- `git status --short`, the staged and unstaged diffs, relevant untracked files, and the commits since the baseline.
 
-Distinguish pre-existing unrelated changes from the phase under review. An empty unstaged diff is not proof of completion. If attribution or the baseline is unclear, state that limit; do not blame unrelated changes on this feature or recommend deleting them.
+Separate changes that existed before the baseline from the phase under review. If the baseline or attribution is unclear, say so; do not blame unrelated changes on the feature or recommend deleting them.
 
-Return a concise scope review with these sections:
+Run the affected app's typecheck, lint, and build from `.ai/STACK.md` yourself when they are available and have no side effects. Report a check as passed only if you ran it.
 
-## Scope Compliance
-
-State whether the diff implements only the requested plan phase.
-
-## Files
-
-Compare expected changed files and new files with actual files. List unexpected files and explain why each is out of scope or requires review.
-
-## Unplanned Work
-
-Identify unplanned dependencies, tests, abstractions, refactors, validation, fallbacks, schema changes, and global changes.
-
-## Architecture and Pattern Compliance
-
-Check the diff against `.ai/STRUCTURE.md`, `.ai/STACK.md`, relevant ADRs, and the applicable framework rules.
+Return short bullets under these headings, writing `None` where there are no findings:
 
 ## Correctness
 
-First report actionable correctness findings with file/line evidence: acceptance criteria, contracts, access checks, state transitions, error handling, and executed verification. Check implementation behavior even when all changed filenames are approved. Do not invent findings for stylistic preferences or claim checks were run if they were only inspected.
+Findings with file and line: acceptance criteria not met, broken contracts, missing access checks, wrong state transitions, lost errors, failed checks. Check behavior even when every changed file was planned. No stylistic preferences.
+
+## Scope
+
+- Recorded deviations: accept the small adjacent ones; flag any that needed approval (dependency, schema, API contract, architecture or structure, product behavior).
+- Unrecorded work: files, dependencies, tests, abstractions, refactors, validation, or fallbacks that are neither planned nor recorded.
+
+## Standards
+
+Conflicts with `.ai/STRUCTURE.md`, `.ai/STACK.md`, relevant ADRs, and the applicable framework standard.
 
 ## Recommendation
 
-Give one of: `Ready`, `Needs scope correction`, `Needs correctness correction`, or `Needs developer decision`.
-
-Use `Needs correctness correction` when behavior is wrong even though scope is correct. `Ready` requires the reviewed phase criteria and required checks to be satisfied; disclose any remaining verification limitation.
-
-Do not edit the diff. Be specific about the smallest necessary correction.
+One of `Ready`, `Needs correctness correction`, `Needs scope correction`, or `Needs developer decision`, with the smallest correction required. `Ready` requires the phase's completion check and its checks to pass; state any verification you could not perform.
